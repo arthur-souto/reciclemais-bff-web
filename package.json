@@ -1,0 +1,38 @@
+{
+  "name": "reciclemais-bff-web",
+  "version": "1.0.0",
+  "description": "Este repositório representa a nova base do backend/BFF do projeto recicleMais. A ideia inicial é reescrever a implementação original do CRUD presente no repositório principal com uma estrutura mais robusta e com funcionalidades adicionais.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/figlet": "^1.7.0",
+    "pino-pretty": "^13.1.3",
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/index.js",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arthur-souto/reciclemais-bff-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arthur-souto/reciclemais-bff-web/issues"
+  },
+  "homepage": "https://github.com/arthur-souto/reciclemais-bff-web#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "figlet": "^1.11.2",
+    "pino": "^10.3.1"
+  }
+}

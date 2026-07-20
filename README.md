@@ -8,6 +8,8 @@ O projeto tem como objetivo evoluir a solução inicial do recicleMais, mantendo
 
 ## Documentação
 
+📐 [Arquitetura do projeto](docs/ARQUITETURA.md)
+
 ### Feature 1: Inteligência de Valor para o Novo Backend
 
 A imagem abaixo representa a primeira feature de valor deste repositório: a evolução da solução inicial para um backend/BFF mais inteligente, preparado para suportar cadastros, consultas e gestão de dados com maior escalabilidade e abertura para novas funcionalidades.
