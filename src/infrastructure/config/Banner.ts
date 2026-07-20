@@ -1,6 +1,6 @@
 // infrastructure/startupBanner.ts
 import figlet from "figlet";
-import Logger from "../../domain/ports/Logger";
+import Logger from "../../domain/ports/LoggerPort";
 
 interface StartupInfo {
   appName: string;

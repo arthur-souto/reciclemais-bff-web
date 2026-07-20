@@ -1,4 +1,4 @@
-import Logger from "../../../domain/ports/Logger"
+import Logger from "../../../domain/ports/LoggerPort"
 import pino from "pino"
 
 export default class PinoLogger implements Logger {
