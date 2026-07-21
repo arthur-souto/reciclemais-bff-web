@@ -51,10 +51,6 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
          *                 type: string
          *                 format: binary
          *                 description: Arquivo de imagem da evidência
-         *               question:
-         *                 type: string
-         *                 description: Pergunta a ser respondida sobre a imagem
-         *                 default: O que você vê nesta imagem?
          *     responses:
          *       200:
          *         description: Evidência processada com sucesso

@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
 import sharp from "sharp";
 import EvidenceUseCases from "../../../application/EvidenceUseCases";
+import GenerateBufferByImage from "../../../utils/GenerateBufferByImage";
+import Logger from "../../../domain/ports/LoggerPort";
+
 
 // Groq vision limita imagens a 33.177.600 pixels (5760 x 5760)
 const MAX_IMAGE_DIMENSION = 5760;
 
 export default class EvidenceController {
+    private readonly BufferImageGenerator = new GenerateBufferByImage();
 
-    constructor(private evidenceUseCases: EvidenceUseCases) {}
-
+    constructor(private evidenceUseCases: EvidenceUseCases, private log: Logger) {}
+ 
     public registerEvidence = async (req: Request, res: Response) => {
         try {
              if (!req.file) {
@@ -16,22 +20,16 @@ export default class EvidenceController {
                  return;
             }
 
-            const question = req.body.question || "O que você vê nesta imagem?";
-            const resizedBuffer = await sharp(req.file.buffer)
-                .resize(MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION, {
-                    fit: "inside",
-                    withoutEnlargement: true,
-                })
-                .toBuffer();
-            const base64Image = resizedBuffer.toString("base64");
-            const imageUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+            this.log.info("Iniciando análise de evidência");
 
-            let analysisResult =await this.evidenceUseCases.analyzeEvidence(imageUrl, question);
+            let imageUrl = await this.BufferImageGenerator.convertToBase64AndReturnUrl(req.file.buffer, req.file.mimetype);
+            let analysisResult = await this.evidenceUseCases.analyzeEvidence(imageUrl);
+
+            this.log.info("Análise de evidência concluída", { analysisResult });
             
-            res.status(200).json({ message: analysisResult });
+            res.status(200).json({ description: analysisResult });
         }
         catch (err) {
-            console.log(err)
             res.status(500).json({ error: "Erro ao processar a imagem" });
         }
     }

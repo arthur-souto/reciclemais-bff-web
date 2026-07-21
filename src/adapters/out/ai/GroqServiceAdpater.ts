@@ -37,6 +37,7 @@ export default class GroqServiceAdpater implements AiCompletionService {
             ],
           },
         ],
+        reasoning_format: "hidden",
         temperature: options?.temperature ?? this.DEFAULT_TEMPERATURE,
         max_tokens: options?.maxTokens ?? this.DEFAULT_MAX_TOKENS,
       });

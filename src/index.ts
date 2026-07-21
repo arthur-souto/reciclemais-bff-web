@@ -19,11 +19,11 @@ const groqService = new GroqServiceAdpater(
 || "qwen/qwen3.6-27b");
 
 //use cases
-const evidenceUseCases = new EvidenceUseCases(logger, groqService);
+const evidenceUseCases = new EvidenceUseCases(groqService);
 
 
 // controllers
-const evidenceController = new EvidenceController(evidenceUseCases);
+const evidenceController = new EvidenceController(evidenceUseCases, logger);
 
 
 // application
