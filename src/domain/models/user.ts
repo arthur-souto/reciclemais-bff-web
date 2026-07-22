@@ -1,27 +1,27 @@
 export class User {
 
-    private id_user: number;
+    private id: null | string = null;
     private name: string;
     private email: string;
     private cpf: string;
     private password: string;
 
     constructor(
-        id_user: number,
+        id: string | null,
         name: string,
         email: string,
         cpf: string,
         password: string
     ) {
-        this.id_user = id_user;
+        this.id = id;
         this.name = name;
         this.email = email;
         this.cpf = cpf;
         this.password = password;
     }
 
-    public getId(): number {
-        return this.id_user;
+    public getId(): string | null {
+        return this.id;
     }
 
     public getName(): string {
@@ -40,8 +40,8 @@ export class User {
         return this.password;
     }                                   
 
-    public setId(id_user: number): void {
-        this.id_user = id_user;
+    public setId(id: string): void {
+        this.id = id;
     }
 
     public setName(name: string): void {
