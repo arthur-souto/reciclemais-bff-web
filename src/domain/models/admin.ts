@@ -1,29 +1,29 @@
 
 
 export class Admin {
-    id_admin: number;
+    id: number;
     password: string;
     email: string;
     role: string;
 
     constructor(
-        id_admin: number,
+        id: number,
         password: string,
         email: string,
         role: string
     ) {
-        this.id_admin = id_admin;
+        this.id = id;
         this.password = password;
         this.email = email;
         this.role = role;
     }
 
-    getId_admin(): number {
-        return this.id_admin;
+    getId(): number {
+        return this.id;
     }
 
-    setId_admin(id_admin: number): void {
-        this.id_admin = id_admin;
+    setId(id: number): void {
+        this.id = id;
     }
 
     getPassword(): string {
