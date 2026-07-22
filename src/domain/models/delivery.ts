@@ -1,15 +1,7 @@
 import { Material } from "./material";
 import { User } from "./user";
 
-export interface IDelivery {
-    id_delivery: number;
-    delivery_Local: string;
-    material_type: string;
-    status: status;
-    material_quantity: number;
-    fk_user: User;
-    fk_material: Material;
-}
+
 
 export enum status {
     PENDING = "PENDING",
@@ -17,29 +9,29 @@ export enum status {
     CANCELED = "CANCELED",
 }
 
-export class Delivery implements IDelivery {
+export class Delivery {
     id_delivery: number;
-    delivery_Local: string;
+    local: string;
     material_type: string;
     status: status;
-    material_quantity: number;
+    quantity: number;
     fk_user: User;
     fk_material: Material;
 
     constructor(
         id_delivery: number,
-        delivery_Local: string,
+        local: string,
         material_type: string,
         status: status,
-        material_quantity: number,
+        quantity: number,
         fk_user: User,
         fk_material: Material
     ) {
         this.id_delivery = id_delivery;
-        this.delivery_Local = delivery_Local;
+        this.local = local;
         this.material_type = material_type;
         this.status = status;
-        this.material_quantity = material_quantity;
+        this.quantity = quantity;
         this.fk_user = fk_user;
         this.fk_material = fk_material;
     }
@@ -52,12 +44,12 @@ export class Delivery implements IDelivery {
         this.id_delivery = id_delivery;
     }
 
-    getDelivery_Local(): string {
-        return this.delivery_Local;
+    getLocal(): string {
+        return this.local;
     }
 
-    setDelivery_Local(delivery_Local: string): void {
-        this.delivery_Local = delivery_Local;
+    setLocal(local: string): void {
+        this.local = local;
     }
 
     getMaterial_type(): string {
@@ -76,12 +68,12 @@ export class Delivery implements IDelivery {
         this.status = status;
     }
 
-    getMaterial_quantity(): number {
-        return this.material_quantity;
+    getQuantity(): number {
+        return this.quantity;
     }
 
-    setMaterial_quantity(material_quantity: number): void {
-        this.material_quantity = material_quantity;
+    setQuantity(quantity: number): void {
+        this.quantity = quantity;
     }
 
     getFk_user(): User {

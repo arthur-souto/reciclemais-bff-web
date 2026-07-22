@@ -1,70 +1,62 @@
-export interface IUser {
-    id_user: number;
-    name_user: string;
-    email_user: string;
-    cpf: string;
-    password_user: string;
-}
+export class User {
 
-export class User implements IUser {
-
-    id_user: number;
-    name_user: string;
-    email_user: string;
-    cpf: string;
-    password_user: string;
+    private id_user: number;
+    private name: string;
+    private email: string;
+    private cpf: string;
+    private password: string;
 
     constructor(
         id_user: number,
-        name_user: string,
-        email_user: string,
+        name: string,
+        email: string,
         cpf: string,
-        password_user: string
+        password: string
     ) {
         this.id_user = id_user;
-        this.name_user = name_user;
-        this.email_user = email_user;
+        this.name = name;
+        this.email = email;
         this.cpf = cpf;
-        this.password_user = password_user;
+        this.password = password;
     }
 
-    getId_user(): number {
+    public getId(): number {
         return this.id_user;
     }
 
-    setId_user(id_user: number): void {
-        this.id_user = id_user;
+    public getName(): string {
+        return this.name;
+    }       
+
+    public getEmail(): string {     
+    return this.email;
     }
 
-    getName_user(): string {
-        return this.name_user;
-    }
-
-    setName_user(name_user: string): void {
-        this.name_user = name_user;
-    }
-
-    getEmail_user(): string {
-        return this.email_user;
-    }
-
-    setEmail_user(email_user: string): void {
-        this.email_user = email_user;
-    }
-
-    getcpf(): string {
+    public getCpf(): string {
         return this.cpf;
     }
 
-    setCpf(cpf: string): void {
+    public getPassword(): string {
+        return this.password;
+    }                                   
+
+    public setId(id_user: number): void {
+        this.id_user = id_user;
+    }
+
+    public setName(name: string): void {
+        this.name = name;
+    }
+
+    public setEmail(email: string): void {
+        this.email = email;
+    }
+
+    public setCpf(cpf: string): void {
         this.cpf = cpf;
     }
 
-    getPassword_user(): string {
-        return this.password_user;
-    }
-
-    setPassword_user(password_user: string): void {
-        this.password_user = password_user;
+    public setPassword(password: string): void {
+        this.password = password;
     }
 }
