@@ -1,13 +1,13 @@
 
 
 export class Admin {
-    id: number;
+    id: null | string = null;
     password: string;
     email: string;
     role: string;
 
     constructor(
-        id: number,
+        id: null | string = null,
         password: string,
         email: string,
         role: string
@@ -18,11 +18,11 @@ export class Admin {
         this.role = role;
     }
 
-    getId(): number {
+    getId(): string | null {
         return this.id;
     }
 
-    setId(id: number): void {
+    setId(id: string): void {
         this.id = id;
     }
 

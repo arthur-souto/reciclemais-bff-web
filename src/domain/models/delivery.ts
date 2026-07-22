@@ -10,7 +10,7 @@ export enum status {
 }
 
 export class Delivery {
-    id: number;
+    id: null | string = null;
     local: string;
     material_type: string;
     status: status;
@@ -19,7 +19,7 @@ export class Delivery {
     fk_material: Material;
 
     constructor(
-        id: number,
+        id: null | string = null,
         local: string,
         material_type: string,
         status: status,
@@ -36,11 +36,11 @@ export class Delivery {
         this.fk_material = fk_material;
     }
 
-    getId(): number {
+    getId(): string | null {
         return this.id;
     }
 
-    setId(id: number): void {
+    setId(id: string): void {
         this.id = id;
     }
 

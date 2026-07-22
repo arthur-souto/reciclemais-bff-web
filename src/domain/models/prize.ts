@@ -3,14 +3,14 @@ import { Admin } from "./admin";
 
 
 export class Prize {
-    id: number;
+    id: null | string = null;
     name: string;
     required_Points: number;
     description: string;
     fk_admin: Admin;
 
     constructor(
-        id: number,
+        id: null | string = null,
         name: string,
         required_Points: number,
         description: string,
@@ -23,11 +23,11 @@ export class Prize {
         this.fk_admin = fk_admin;
     }
 
-    getId(): number {
+    getId(): string | null {
         return this.id;
     }
 
-    setId(id: number): void {
+    setId(id: string): void {
         this.id = id;
     }
 

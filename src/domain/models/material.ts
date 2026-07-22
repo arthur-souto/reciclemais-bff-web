@@ -1,14 +1,14 @@
 import { Admin } from "./admin";
 
 export class Material{
-    id: number;
+    id: null | string = null;
     name: string;
     importance: number;
     points_value: number;
     fk_admin: Admin;
 
     constructor(
-        id: number,
+        id: null | string = null,
         name: string,
         importance: number,
         points_value: number,
@@ -21,11 +21,11 @@ export class Material{
         this.fk_admin = fk_admin;
     }
 
-    getId(): number {
+    getId(): string | null {
         return this.id;
     }
 
-    setId(id: number): void {
+    setId(id: string): void {
         this.id = id;
     }
 
