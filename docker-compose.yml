@@ -1,0 +1,15 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: reciclemais-db
+    environment:
+      POSTGRES_DB: recicle_db
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - k_dev-data:/var/lib/postgresql/data
+
+volumes:
+  k_dev-data:

@@ -8,6 +8,10 @@ import multer from "multer";
 import EvidenceController from "./EvidenceController";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../../../infrastructure/config/Swagger";
+import { validate } from "./middleware/validate";
+import { CreateUserDto } from "../../request/CreateUserDTO";
+import { registerRoutes } from "./route";
+import UserController from "./UserController";
 
 export default class ExpressServerAdapter implements ApplicationRunnable {
 
@@ -21,45 +25,26 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
 
     // configuração do express
     // o logger é injetado para que possamos logar eventos do servidor
-    constructor(private log: Logger, private evidenceController: EvidenceController) {
+    public constructor(private log: Logger, private evidenceController: EvidenceController, private userController: UserController) {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cors());
+        this.configureDocs()
         this.configureRoutes();
     }
 
     private configureRoutes() {
-        this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+        registerRoutes(
+            this.app,
+            {
+                evidenceController: this.evidenceController,
+                userController: this.userController
+            }
+        )
+    }
 
-        /**
-         * @openapi
-         * /evidence:
-         *   post:
-         *     summary: Registra uma evidência a partir de uma imagem
-         *     tags:
-         *       - Evidence
-         *     requestBody:
-         *       required: true
-         *       content:
-         *         multipart/form-data:
-         *           schema:
-         *             type: object
-         *             required:
-         *               - evidence
-         *             properties:
-         *               evidence:
-         *                 type: string
-         *                 format: binary
-         *                 description: Arquivo de imagem da evidência
-         *     responses:
-         *       200:
-         *         description: Evidência processada com sucesso
-         *       400:
-         *         description: Nenhuma imagem enviada
-         *       500:
-         *         description: Erro ao processar a imagem
-         */
-        this.app.post("/evidence", this.upload.single("evidence"), this.evidenceController.registerEvidence);
+    private configureDocs() {
+        this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     }
 
     public async run(port: number): Promise<void> {

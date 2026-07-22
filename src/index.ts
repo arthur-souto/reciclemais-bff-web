@@ -1,3 +1,5 @@
+import "dotenv/config";
+import "reflect-metadata";
 import EvidenceController from "./adapters/in/http/EvidenceController";
 import ExpressServerAdapter from "./adapters/in/http/ExpressServerAdpater";
 import GroqServiceAdpater from "./adapters/out/ai/GroqServiceAdpater";
@@ -6,7 +8,11 @@ import EvidenceUseCases from "./application/EvidenceUseCases";
 import ApplicationRunnable from "./domain/ports/ApplicationRunnablePort";
 import Logger from "./domain/ports/LoggerPort";
 import { logBanner } from "./infrastructure/config/Banner";
-import "dotenv/config";
+import { poll } from "./infrastructure/database/client";
+import UserUseCase from "./application/UserUseCase";
+import DrizzleUserRepository from "./infrastructure/repositories/DrizzleUserRepository";
+import UserRepositoryPort from "./domain/ports/repository/UserRepositoryPort";
+import UserController from "./adapters/in/http/UserController";
 
 const logger: Logger = new PinoLogger();
 
@@ -18,18 +24,21 @@ const groqService = new GroqServiceAdpater(
     logger, process.env.GROQ_VISION_MODEL
 || "qwen/qwen3.6-27b");
 
+//repositories
+const userRepository: UserRepositoryPort = new DrizzleUserRepository()
+
 //use cases
 const evidenceUseCases = new EvidenceUseCases(groqService);
-
+const userUseCases = new UserUseCase(userRepository)
 
 // controllers
 const evidenceController = new EvidenceController(evidenceUseCases, logger);
-
+const userController = new UserController(userUseCases, logger);
 
 // application
-const app: ApplicationRunnable = new ExpressServerAdapter(logger, evidenceController);
+const app: ApplicationRunnable = new ExpressServerAdapter(logger, evidenceController, userController);
 
-app.run(3000).then(() => {
+app.run(Number(process.env.PORT)).then(() => {
     logBanner(logger, {
         appName: "RecicleMais",
         version: "1.0.0",
@@ -42,6 +51,7 @@ app.run(3000).then(() => {
 
 const shutdown = (signal: string) => {
     logger.info(`${signal} received, shutting down gracefully`);
+    poll.end().then(() => logger.info("Database connection pool closed"));
     app.stop().then(() => process.exit(0));
 };
 

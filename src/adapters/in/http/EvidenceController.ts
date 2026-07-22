@@ -1,17 +1,12 @@
 import { Request, Response } from "express";
-import sharp from "sharp";
 import EvidenceUseCases from "../../../application/EvidenceUseCases";
 import GenerateBufferByImage from "../../../utils/GenerateBufferByImage";
 import Logger from "../../../domain/ports/LoggerPort";
 
-
-// Groq vision limita imagens a 33.177.600 pixels (5760 x 5760)
-const MAX_IMAGE_DIMENSION = 5760;
-
 export default class EvidenceController {
     private readonly BufferImageGenerator = new GenerateBufferByImage();
 
-    constructor(private evidenceUseCases: EvidenceUseCases, private log: Logger) {}
+    public constructor(private evidenceUseCases: EvidenceUseCases, private log: Logger) {}
  
     public registerEvidence = async (req: Request, res: Response) => {
         try {

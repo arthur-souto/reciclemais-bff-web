@@ -16,5 +16,10 @@ const swaggerDefinition: swaggerJSDoc.SwaggerDefinition = {
 
 export const swaggerSpec = swaggerJSDoc({
   swaggerDefinition,
-  apis: ["./src/adapters/in/http/*.ts", "./dist/adapters/in/http/*.js"],
+  apis: [
+    "./src/adapters/in/http/*.ts",
+    "./src/adapters/in/http/route/*.ts",
+    "./dist/adapters/in/http/*.js",
+    "./dist/adapters/in/http/route/*.js",
+  ],
 });
