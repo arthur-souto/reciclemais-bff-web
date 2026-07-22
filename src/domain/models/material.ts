@@ -1,31 +1,23 @@
 import { Admin } from "./admin";
 
-export interface IMaterial {
+export class Material{
     id_material: number;
-    name_material: string;
+    name: string;
     importance: number;
-    points_material: number;
-    fk_admin: Admin;
-}
-
-export class Material implements IMaterial {
-    id_material: number;
-    name_material: string;
-    importance: number;
-    points_material: number;
+    points_value: number;
     fk_admin: Admin;
 
     constructor(
         id_material: number,
-        name_material: string,
+        name: string,
         importance: number,
-        points_material: number,
+        points_value: number,
         fk_admin: Admin
     ) {
         this.id_material = id_material;
-        this.name_material = name_material;
+        this.name = name;
         this.importance = importance;
-        this.points_material = points_material;
+        this.points_value = points_value;
         this.fk_admin = fk_admin;
     }
 
@@ -37,12 +29,12 @@ export class Material implements IMaterial {
         this.id_material = id_material;
     }
 
-    getName_material(): string {
-        return this.name_material;
+    getName(): string {
+        return this.name;
     }
 
-    setName_material(name_material: string): void {
-        this.name_material = name_material;
+    setName(name: string): void {
+        this.name = name;
     }
 
     getImportance(): number {
@@ -53,12 +45,12 @@ export class Material implements IMaterial {
         this.importance = importance;
     }
 
-    getPoints_material(): number {
-        return this.points_material;
+    getPoints_value(): number {
+        return this.points_value;
     }
 
-    setPoints_material(points_material: number): void {
-        this.points_material = points_material;
+    setPoints_value(points_value: number): void {
+        this.points_value = points_value;
     }
 
     getFk_admin(): Admin {

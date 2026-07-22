@@ -1,30 +1,24 @@
 import { Admin } from "./admin";
 
-export interface IPrize {
-    id_prize: number;
-    name_prize: string;
-    points_prize: number;
-    description: string;
-    fk_admin: Admin;
-}
 
-export class Prize implements IPrize {
+
+export class Prize {
     id_prize: number;
-    name_prize: string;
-    points_prize: number;
+    name: string;
+    required_Points: number;
     description: string;
     fk_admin: Admin;
 
     constructor(
         id_prize: number,
-        name_prize: string,
-        points_prize: number,
+        name: string,
+        required_Points: number,
         description: string,
         fk_admin: Admin
     ) {
         this.id_prize = id_prize;
-        this.name_prize = name_prize;
-        this.points_prize = points_prize;
+        this.name = name;
+        this.required_Points = required_Points;
         this.description = description;
         this.fk_admin = fk_admin;
     }
@@ -37,20 +31,20 @@ export class Prize implements IPrize {
         this.id_prize = id_prize;
     }
 
-    getName_prize(): string {
-        return this.name_prize;
+    getName(): string {
+        return this.name;
     }
 
-    setName_prize(name_prize: string): void {
-        this.name_prize = name_prize;
+    setName(name: string): void {
+        this.name = name;
     }
 
-    getPoints_prize(): number {
-        return this.points_prize;
+    getRequired_Points(): number {
+        return this.required_Points;
     }
 
-    setPoints_prize(points_prize: number): void {
-        this.points_prize = points_prize;
+    setRequired_Points(required_Points: number): void {
+        this.required_Points = required_Points;
     }
 
     getDescription(): string {

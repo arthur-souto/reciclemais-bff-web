@@ -1,25 +1,20 @@
-export interface IAdmin {
-    id_admin: number;
-    password_admin: string;
-    email_admin: string;
-    role: string;
-}
 
-export class Admin implements IAdmin {
+
+export class Admin {
     id_admin: number;
-    password_admin: string;
-    email_admin: string;
+    password: string;
+    email: string;
     role: string;
 
     constructor(
         id_admin: number,
-        password_admin: string,
-        email_admin: string,
+        password: string,
+        email: string,
         role: string
     ) {
         this.id_admin = id_admin;
-        this.password_admin = password_admin;
-        this.email_admin = email_admin;
+        this.password = password;
+        this.email = email;
         this.role = role;
     }
 
@@ -31,20 +26,20 @@ export class Admin implements IAdmin {
         this.id_admin = id_admin;
     }
 
-    getPassword_admin(): string {
-        return this.password_admin;
+    getPassword(): string {
+        return this.password;
     }
 
-    setPassword_admin(password_admin: string): void {
-        this.password_admin = password_admin;
+    setPassword(password: string): void {
+        this.password = password;
     }
 
-    getEmail_admin(): string {
-        return this.email_admin;
+    getEmail(): string {
+        return this.email;
     }
 
-    setEmail_admin(email_admin: string): void {
-        this.email_admin = email_admin;
+    setEmail(email: string): void {
+        this.email = email;
     }
 
     getRole(): string {
