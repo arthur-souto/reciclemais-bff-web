@@ -3,32 +3,32 @@ import { Admin } from "./admin";
 
 
 export class Prize {
-    id_prize: number;
+    id: null | string = null;
     name: string;
     required_Points: number;
     description: string;
     fk_admin: Admin;
 
     constructor(
-        id_prize: number,
+        id: null | string = null,
         name: string,
         required_Points: number,
         description: string,
         fk_admin: Admin
     ) {
-        this.id_prize = id_prize;
+        this.id = id;
         this.name = name;
         this.required_Points = required_Points;
         this.description = description;
         this.fk_admin = fk_admin;
     }
 
-    getId_prize(): number {
-        return this.id_prize;
+    getId(): string | null {
+        return this.id;
     }
 
-    setId_prize(id_prize: number): void {
-        this.id_prize = id_prize;
+    setId(id: string): void {
+        this.id = id;
     }
 
     getName(): string {

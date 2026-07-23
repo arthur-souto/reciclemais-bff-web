@@ -1,32 +1,32 @@
 import { Admin } from "./admin";
 
 export class Material{
-    id_material: number;
+    id: null | string = null;
     name: string;
     importance: number;
     points_value: number;
     fk_admin: Admin;
 
     constructor(
-        id_material: number,
+        id: null | string = null,
         name: string,
         importance: number,
         points_value: number,
         fk_admin: Admin
     ) {
-        this.id_material = id_material;
+        this.id = id;
         this.name = name;
         this.importance = importance;
         this.points_value = points_value;
         this.fk_admin = fk_admin;
     }
 
-    getId_material(): number {
-        return this.id_material;
+    getId(): string | null {
+        return this.id;
     }
 
-    setId_material(id_material: number): void {
-        this.id_material = id_material;
+    setId(id: string): void {
+        this.id = id;
     }
 
     getName(): string {
