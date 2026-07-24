@@ -1,33 +1,29 @@
-import { Admin } from "./admin";
-
-
-
 export class Prize {
-    id: null | string = null;
+    id: null | number = null;
     name: string;
-    required_Points: number;
+    required_points: number;
     description: string;
-    fk_admin: Admin;
+    fk_user: string | null;
 
     constructor(
-        id: null | string = null,
+        id: null | number = null,
         name: string,
-        required_Points: number,
+        required_points: number,
         description: string,
-        fk_admin: Admin
+        fk_user: string | null = null
     ) {
         this.id = id;
         this.name = name;
-        this.required_Points = required_Points;
+        this.required_points = required_points;
         this.description = description;
-        this.fk_admin = fk_admin;
+        this.fk_user = fk_user;
     }
 
-    getId(): string | null {
+    getId(): number | null {
         return this.id;
     }
 
-    setId(id: string): void {
+    setId(id: number): void {
         this.id = id;
     }
 
@@ -39,12 +35,12 @@ export class Prize {
         this.name = name;
     }
 
-    getRequired_Points(): number {
-        return this.required_Points;
+    getRequired_points(): number {
+        return this.required_points;
     }
 
-    setRequired_Points(required_Points: number): void {
-        this.required_Points = required_Points;
+    setRequired_points(required_points: number): void {
+        this.required_points = required_points;
     }
 
     getDescription(): string {
@@ -55,11 +51,11 @@ export class Prize {
         this.description = description;
     }
 
-    getFk_admin(): Admin {
-        return this.fk_admin;
+    getFk_user(): string | null {
+        return this.fk_user;
     }
 
-    setFk_admin(fk_admin: Admin): void {
-        this.fk_admin = fk_admin;
+    setFk_user(fk_user: string | null): void {
+        this.fk_user = fk_user;
     }
 }

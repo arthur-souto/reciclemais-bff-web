@@ -1,31 +1,29 @@
-import { Admin } from "./admin";
-
-export class Material{
-    id: null | string = null;
+export class Material {
+    id: null | number = null;
     name: string;
     importance: number;
     points_value: number;
-    fk_admin: Admin;
+    fk_user: string | null;
 
     constructor(
-        id: null | string = null,
+        id: null | number = null,
         name: string,
         importance: number,
         points_value: number,
-        fk_admin: Admin
+        fk_user: string | null = null
     ) {
         this.id = id;
         this.name = name;
         this.importance = importance;
         this.points_value = points_value;
-        this.fk_admin = fk_admin;
+        this.fk_user = fk_user;
     }
 
-    getId(): string | null {
+    getId(): number | null {
         return this.id;
     }
 
-    setId(id: string): void {
+    setId(id: number): void {
         this.id = id;
     }
 
@@ -53,11 +51,11 @@ export class Material{
         this.points_value = points_value;
     }
 
-    getFk_admin(): Admin {
-        return this.fk_admin;
+    getFk_user(): string | null {
+        return this.fk_user;
     }
 
-    setFk_admin(fk_admin: Admin): void {
-        this.fk_admin = fk_admin;
+    setFk_user(fk_user: string | null): void {
+        this.fk_user = fk_user;
     }
 }

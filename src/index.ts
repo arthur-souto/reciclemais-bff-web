@@ -1,6 +1,6 @@
 import "dotenv/config";
 import "reflect-metadata";
-import EvidenceController from "./adapters/in/http/EvidenceController";
+import EvidenceController from "./adapters/in/http/controller/EvidenceController";
 import ExpressServerAdapter from "./adapters/in/http/ExpressServerAdpater";
 import GroqServiceAdpater from "./adapters/out/ai/GroqServiceAdpater";
 import PinoLogger from "./adapters/out/logging/PinoLoggerAdpater";
@@ -10,12 +10,29 @@ import Logger from "./domain/ports/LoggerPort";
 import { logBanner } from "./infrastructure/config/Banner";
 import { poll } from "./infrastructure/database/client";
 import UserUseCase from "./application/UserUseCase";
-import DrizzleUserRepository from "./infrastructure/repositories/DrizzleUserRepository";
+import DrizzleUserRepository from "./adapters/out/repositories/DrizzleUserRepository";
 import UserRepositoryPort from "./domain/ports/repository/UserRepositoryPort";
-import UserController from "./adapters/in/http/UserController";
+import UserController from "./adapters/in/http/controller/UserController";
+import Argon2PasswordHasher from "./adapters/out/security/Argon2PasswordHasher";
+import AuthUseCases from "./application/AuthUseCases";
+import AuthController from "./adapters/in/http/controller/AuthController";
+import JwtTokenService from "./adapters/out/security/JwtTokenService";
+import MaterialUseCase from "./application/MaterialUseCase";
+import DrizzleMaterialRepository from "./adapters/out/repositories/DrizzleMaterialRepository";
+import MaterialRepositoryPort from "./domain/ports/repository/MaterialRepositoryPort";
+import MaterialController from "./adapters/in/http/controller/MaterialController";
+import PrizeUseCase from "./application/PrizeUseCase";
+import DrizzlePrizeRepository from "./adapters/out/repositories/DrizzlePrizeRepository";
+import PrizeRepositoryPort from "./domain/ports/repository/PrizeRepositoryPort";
+import PrizeController from "./adapters/in/http/controller/PrizeController";
+import DeliveryUseCase from "./application/DeliveryUseCase";
+import DrizzleDeliveryRepository from "./adapters/out/repositories/DrizzleDeliveryRepository";
+import DeliveryRepositoryPort from "./domain/ports/repository/DeliveryRepositoryPort";
+import DeliveryController from "./adapters/in/http/controller/DeliveryController";
 
 const logger: Logger = new PinoLogger();
-
+const passwordHasher = new Argon2PasswordHasher();
+const tokenService = new JwtTokenService(process.env.JWT_SECRET!, process.env.JWT_EXPIRES_IN);
 
 //groq service adapter
 const groqService = new GroqServiceAdpater(
@@ -26,17 +43,37 @@ const groqService = new GroqServiceAdpater(
 
 //repositories
 const userRepository: UserRepositoryPort = new DrizzleUserRepository()
+const materialRepository: MaterialRepositoryPort = new DrizzleMaterialRepository()
+const prizeRepository: PrizeRepositoryPort = new DrizzlePrizeRepository()
+const deliveryRepository: DeliveryRepositoryPort = new DrizzleDeliveryRepository()
 
 //use cases
 const evidenceUseCases = new EvidenceUseCases(groqService);
-const userUseCases = new UserUseCase(userRepository)
+const userUseCases = new UserUseCase(userRepository, passwordHasher)
+const authUseCases = new AuthUseCases(userRepository, passwordHasher, tokenService)
+const materialUseCases = new MaterialUseCase(materialRepository)
+const prizeUseCases = new PrizeUseCase(prizeRepository)
+const deliveryUseCases = new DeliveryUseCase(deliveryRepository, materialRepository)
 
 // controllers
 const evidenceController = new EvidenceController(evidenceUseCases, logger);
 const userController = new UserController(userUseCases, logger);
+const authController = new AuthController(authUseCases, logger);
+const materialController = new MaterialController(materialUseCases, logger);
+const prizeController = new PrizeController(prizeUseCases, logger);
+const deliveryController = new DeliveryController(deliveryUseCases, logger);
 
 // application
-const app: ApplicationRunnable = new ExpressServerAdapter(logger, evidenceController, userController);
+const app: ApplicationRunnable = new ExpressServerAdapter(
+    logger,
+    evidenceController,
+    userController,
+    authController,
+    materialController,
+    prizeController,
+    deliveryController,
+    tokenService
+);
 
 app.run(Number(process.env.PORT)).then(() => {
     logBanner(logger, {

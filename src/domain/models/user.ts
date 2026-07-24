@@ -1,3 +1,5 @@
+export type UserRole = "USER" | "ADMIN" | "ASSOCIATE";
+
 export class User {
 
     private id: null | string = null;
@@ -5,19 +7,22 @@ export class User {
     private email: string;
     private cpf: string;
     private password: string;
+    private role: UserRole;
 
     constructor(
         id: string | null,
         name: string,
         email: string,
         cpf: string,
-        password: string
+        password: string,
+        role: UserRole = "USER"
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.cpf = cpf;
         this.password = password;
+        this.role = role;
     }
 
     public getId(): string | null {
@@ -26,9 +31,9 @@ export class User {
 
     public getName(): string {
         return this.name;
-    }       
+    }
 
-    public getEmail(): string {     
+    public getEmail(): string {
     return this.email;
     }
 
@@ -38,7 +43,11 @@ export class User {
 
     public getPassword(): string {
         return this.password;
-    }                                   
+    }
+
+    public getRole(): UserRole {
+        return this.role;
+    }
 
     public setId(id: string): void {
         this.id = id;
@@ -58,6 +67,10 @@ export class User {
 
     public setPassword(password: string): void {
         this.password = password;
+    }
+
+    public setRole(role: UserRole): void {
+        this.role = role;
     }
 }
 

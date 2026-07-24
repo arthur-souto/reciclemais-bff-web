@@ -1,46 +1,44 @@
-import { Material } from "./material";
-import { User } from "./user";
-
-
-
-export enum status {
+export enum DeliveryStatus {
     PENDING = "PENDING",
     COMPLETED = "COMPLETED",
     CANCELED = "CANCELED",
 }
 
 export class Delivery {
-    id: null | string = null;
+    id: null | number = null;
     local: string;
     material_type: string;
-    status: status;
+    status: DeliveryStatus;
     quantity: number;
-    fk_user: User;
-    fk_material: Material;
+    evidence_url: string | null;
+    fk_user: string | null;
+    fk_material: number | null;
 
     constructor(
-        id: null | string = null,
+        id: null | number = null,
         local: string,
         material_type: string,
-        status: status,
+        status: DeliveryStatus,
         quantity: number,
-        fk_user: User,
-        fk_material: Material
+        evidence_url: string | null = null,
+        fk_user: string | null = null,
+        fk_material: number | null = null
     ) {
         this.id = id;
         this.local = local;
         this.material_type = material_type;
         this.status = status;
         this.quantity = quantity;
+        this.evidence_url = evidence_url;
         this.fk_user = fk_user;
         this.fk_material = fk_material;
     }
 
-    getId(): string | null {
+    getId(): number | null {
         return this.id;
     }
 
-    setId(id: string): void {
+    setId(id: number): void {
         this.id = id;
     }
 
@@ -60,11 +58,11 @@ export class Delivery {
         this.material_type = material_type;
     }
 
-    getStatus(): status {
+    getStatus(): DeliveryStatus {
         return this.status;
     }
 
-    setStatus(status: status): void {
+    setStatus(status: DeliveryStatus): void {
         this.status = status;
     }
 
@@ -76,19 +74,27 @@ export class Delivery {
         this.quantity = quantity;
     }
 
-    getFk_user(): User {
+    getEvidence_url(): string | null {
+        return this.evidence_url;
+    }
+
+    setEvidence_url(evidence_url: string | null): void {
+        this.evidence_url = evidence_url;
+    }
+
+    getFk_user(): string | null {
         return this.fk_user;
     }
 
-    setFk_user(fk_user: User): void {
+    setFk_user(fk_user: string | null): void {
         this.fk_user = fk_user;
     }
 
-    getFk_material(): Material {
+    getFk_material(): number | null {
         return this.fk_material;
     }
 
-    setFk_material(fk_material: Material): void {
+    setFk_material(fk_material: number | null): void {
         this.fk_material = fk_material;
     }
 }

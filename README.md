@@ -68,7 +68,22 @@ npm run build
 npm start
 ```
 
-A aplicação sobe em `http://localhost:<PORT>` e a documentação Swagger fica disponível em `http://localhost:<PORT>/docs`.
+A aplicação sobe em `http://localhost:<PORT>`.
+
+### Documentação da API (`/docs`)
+
+Com a aplicação rodando, a documentação interativa da API (Swagger UI, gerada a partir das anotações OpenAPI presentes nos arquivos de rota em `src/adapters/in/http/route/`) fica disponível em:
+
+```
+http://localhost:<PORT>/docs
+```
+
+Lá dá pra ver todos os endpoints, seus parâmetros/body esperados e testar chamadas direto pelo navegador ("Try it out"). Endpoints protegidos aparecem com um ícone de cadeado — para testá-los:
+
+1. Crie um usuário em `POST /users` (ou use um já existente).
+2. Faça login em `POST /auth/login` e copie o valor de `accessToken` da resposta.
+3. Clique no botão **Authorize** (canto superior direito da página) e cole o token — sem o prefixo `Bearer`, o Swagger adiciona isso automaticamente.
+4. A partir daí, toda chamada feita pela UI para rotas protegidas já vai com o header `Authorization` preenchido.
 
 ## Documentação
 

@@ -5,13 +5,19 @@ import cors from "cors";
 import { Server } from 'http'
 import Logger from "../../../domain/ports/LoggerPort";
 import multer from "multer";
-import EvidenceController from "./EvidenceController";
+import EvidenceController from "./controller/EvidenceController";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../../../infrastructure/config/Swagger";
 import { validate } from "./middleware/validate";
 import { CreateUserDto } from "../../request/CreateUserDTO";
 import { registerRoutes } from "./route";
-import UserController from "./UserController";
+import UserController from "./controller/UserController";
+import AuthController from "./controller/AuthController";
+import MaterialController from "./controller/MaterialController";
+import PrizeController from "./controller/PrizeController";
+import DeliveryController from "./controller/DeliveryController";
+import { errorHandler } from "./middleware/errorHandler";
+import { TokenServicePort } from "../../../domain/TokenServicePort";
 
 export default class ExpressServerAdapter implements ApplicationRunnable {
 
@@ -25,12 +31,22 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
 
     // configuração do express
     // o logger é injetado para que possamos logar eventos do servidor
-    public constructor(private log: Logger, private evidenceController: EvidenceController, private userController: UserController) {
+    public constructor(
+        private log: Logger,
+        private evidenceController: EvidenceController,
+        private userController: UserController,
+        private authController: AuthController,
+        private materialController: MaterialController,
+        private prizeController: PrizeController,
+        private deliveryController: DeliveryController,
+        private tokens: TokenServicePort
+    ) {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cors());
         this.configureDocs()
         this.configureRoutes();
+        this.app.use(errorHandler(this.log));
     }
 
     private configureRoutes() {
@@ -38,8 +54,13 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
             this.app,
             {
                 evidenceController: this.evidenceController,
-                userController: this.userController
-            }
+                userController: this.userController,
+                authController: this.authController,
+                materialController: this.materialController,
+                prizeController: this.prizeController,
+                deliveryController: this.deliveryController
+            },
+            this.tokens
         )
     }
 

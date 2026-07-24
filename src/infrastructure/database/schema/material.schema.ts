@@ -1,14 +1,12 @@
-import { varchar } from "drizzle-orm/cockroach-core";
-import { integer, pgTable, serial } from "drizzle-orm/pg-core";
-import { adminTable } from "./admin.schema";
-
+import { integer, pgTable, serial, uuid, varchar } from "drizzle-orm/pg-core";
+import { usersTable } from "./user.schema";
 
 export const materialTable = pgTable("materials", {
     id: serial("id").primaryKey(),
     name: varchar({ length: 255 }).notNull(),
     importance: integer().notNull(),
     points_value: integer().notNull(),
-    fk_admin: integer("fk_admin").references(() => adminTable.id)
+    fk_user: uuid("fk_user").references(() => usersTable.id),
 })
 
 export type MaterialRow = typeof materialTable.$inferSelect;

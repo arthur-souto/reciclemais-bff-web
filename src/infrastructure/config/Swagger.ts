@@ -5,13 +5,28 @@ const swaggerDefinition: swaggerJSDoc.SwaggerDefinition = {
   info: {
     title: "RecicleMais BFF API",
     version: "1.0.0",
-    description: "Documentação da API do backend/BFF do projeto RecicleMais",
+    description: [
+      "Documentação interativa (OpenAPI 3.0) da API do backend/BFF do projeto RecicleMais.",
+      "",
+      "**Autenticação**: rotas marcadas com um cadeado exigem um token JWT. Gere um em `POST /auth/login`",
+      "(usando um usuário criado via `POST /users`), copie o valor de `accessToken` e clique em **Authorize**",
+      "no topo desta página, colando apenas o token (sem o prefixo `Bearer`, o Swagger adiciona automaticamente).",
+    ].join("\n"),
   },
   servers: [
     {
       url: "/",
     },
   ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
 };
 
 export const swaggerSpec = swaggerJSDoc({

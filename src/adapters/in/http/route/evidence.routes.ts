@@ -1,13 +1,15 @@
 import { Router } from "express";
 import multer from "multer";
-import EvidenceController from "../EvidenceController";
+import EvidenceController from "../controller/EvidenceController";
+import { authMiddleware } from "../middleware/auth";
+import { TokenServicePort } from "../../../../domain/TokenServicePort";
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 },
 });
 
-export function evidenceRoutes(evidenceController: EvidenceController): Router {
+export function evidenceRoutes(evidenceController: EvidenceController, tokens: TokenServicePort): Router {
   const router = Router();
 
   /**
@@ -17,6 +19,8 @@ export function evidenceRoutes(evidenceController: EvidenceController): Router {
    *     summary: Registra uma evidência a partir de uma imagem
    *     tags:
    *       - Evidence
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       required: true
    *       content:
@@ -35,11 +39,14 @@ export function evidenceRoutes(evidenceController: EvidenceController): Router {
    *         description: Evidência processada com sucesso
    *       400:
    *         description: Nenhuma imagem enviada
+   *       401:
+   *         description: Não autenticado
    *       500:
    *         description: Erro ao processar a imagem
    */
   router.post(
     "/evidence",
+    authMiddleware(tokens),
     upload.single("evidence"),
     evidenceController.registerEvidence,
   );
