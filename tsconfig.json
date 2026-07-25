@@ -1,6 +1,7 @@
 {
   "exclude": [
     "drizzle.config.ts",
+    "vitest.config.ts",
     "node_modules",
     "dist"
   ],

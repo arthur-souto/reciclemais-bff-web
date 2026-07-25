@@ -54,7 +54,7 @@ describe("EvidenceController", () => {
     await controller.registerEvidence(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
-    const err = next.mock.calls[0][0];
+    const err = next.mock.calls[0]![0]!;
     expect(err).toBeInstanceOf(AppError);
     expect(err.statusCode).toBe(400);
     expect(err.message).toBe("Nenhuma imagem enviada");
