@@ -1,11 +1,11 @@
-import { Material } from "../../../domain/models/material";
+import { EImportance, Material } from "../../../domain/models/material";
 import { CreateMaterialDto } from "../../request/CreateMaterialDTO";
 import { UpdateMaterialDto } from "../../request/UpdateMaterialDTO";
 
 export function toMaterialResponse(material: Material): {
     id: number | null;
     name: string;
-    importance: number;
+    importance: EImportance;
     points_value: number;
     fk_user: string | null;
 } {
