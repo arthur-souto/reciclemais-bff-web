@@ -3,6 +3,7 @@ import PrizeRepositoryPort from "../domain/ports/repository/PrizeRepositoryPort"
 import AppError from "../domain/errors/AppError";
 import { CreatePrizeDto } from "../adapters/request/CreatePrizeDTO";
 import { UpdatePrizeDto } from "../adapters/request/UpdatePrizeDTO";
+import { mapPaginatedResult, PaginationParams } from "../domain/dto/Pagination";
 
 export default class PrizeUseCase {
 
@@ -20,9 +21,9 @@ export default class PrizeUseCase {
         return toPrizeResponse(prize);
     }
 
-    public async findAll() {
-        const prizes = await this.repository.findAll();
-        return prizes.map(toPrizeResponse);
+    public async findAll(pagination: PaginationParams) {
+        const result = await this.repository.findAll(pagination);
+        return mapPaginatedResult(result, toPrizeResponse);
     }
 
     public async update(id: string, dto: UpdatePrizeDto) {

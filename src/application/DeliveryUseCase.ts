@@ -4,6 +4,7 @@ import MaterialRepositoryPort from "../domain/ports/repository/MaterialRepositor
 import AppError from "../domain/errors/AppError";
 import { CreateDeliveryDto } from "../adapters/request/CreateDeliveryDTO";
 import { UpdateDeliveryDto } from "../adapters/request/UpdateDeliveryDTO";
+import { mapPaginatedResult, PaginationParams } from "../domain/dto/Pagination";
 
 export default class DeliveryUseCase {
 
@@ -26,9 +27,9 @@ export default class DeliveryUseCase {
         return toDeliveryResponse(delivery);
     }
 
-    public async findAll() {
-        const deliveries = await this.repository.findAll();
-        return deliveries.map(toDeliveryResponse);
+    public async findAll(pagination: PaginationParams) {
+        const result = await this.repository.findAll(pagination);
+        return mapPaginatedResult(result, toDeliveryResponse);
     }
 
     public async update(id: string, dto: UpdateDeliveryDto) {

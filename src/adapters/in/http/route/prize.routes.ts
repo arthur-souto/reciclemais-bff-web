@@ -52,9 +52,22 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *       - Prizes
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Página desejada
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Itens por página (máximo 100)
    *     responses:
    *       200:
-   *         description: Lista de prêmios
+   *         description: Lista paginada de prêmios
    *       401:
    *         description: Não autenticado
    */

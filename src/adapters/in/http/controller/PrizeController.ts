@@ -3,6 +3,7 @@ import PrizeUseCase from "../../../../application/PrizeUseCase";
 import Logger from "../../../../domain/ports/LoggerPort";
 import { CreatePrizeDto } from "../../../request/CreatePrizeDTO";
 import { UpdatePrizeDto } from "../../../request/UpdatePrizeDTO";
+import { parsePagination, paginatedPayload } from "../utils/pagination";
 
 export default class PrizeController {
 
@@ -34,8 +35,8 @@ export default class PrizeController {
 
     public findAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const response = await this.prizeUseCase.findAll();
-            res.status(200).json({ payload: response });
+            const result = await this.prizeUseCase.findAll(parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);

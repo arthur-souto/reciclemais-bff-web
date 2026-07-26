@@ -2,11 +2,40 @@ import { Material } from "../../../domain/models/material";
 import MaterialRepositoryPort from "../../../domain/ports/repository/MaterialRepositoryPort";
 import { db } from "../../../infrastructure/database/client";
 import { materialTable, MaterialRow } from "../../../infrastructure/database/schema/material.schema";
-import { eq } from "drizzle-orm";
+import { count, eq, ilike, SQL } from "drizzle-orm";
 import AppError from "../../../domain/errors/AppError";
 import { isForeignKeyViolation } from "./DrizzleErrors";
+import { escapeLike } from "../../../utils/ScapeLike";
+import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
+import { countRows, emptyResult } from "../utils/SqlUtils";
 
 export default class DrizzleMaterialRepository implements MaterialRepositoryPort {
+
+    async findByTarget(target: string | null, pagination: PaginationParams): Promise<PaginatedResult<Material>> {
+        if (target === null) {
+            return this.findAll(pagination);
+        }
+
+        if (target.trim() == "") {
+            return emptyResult(pagination);
+        }
+
+        const condition = ilike(materialTable.name, `%${this.normalizeTarget(target)}%`);
+        const { page, limit } = pagination;
+
+        const [rows, total] = await Promise.all([
+            db.select().from(materialTable).where(condition).limit(limit).offset((page - 1) * limit),
+            countRows(db, materialTable, condition),
+        ]);
+
+        return {
+            data: rows.map((row) => this.toDomain(row)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
 
     async save(material: Material): Promise<Material> {
         const [row] = await db.insert(materialTable).values({
@@ -25,10 +54,21 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
         return row ? this.toDomain(row) : null;
     }
 
-    async findAll(): Promise<Material[]> {
-        const rows = await db.select().from(materialTable);
+    async findAll(pagination: PaginationParams): Promise<PaginatedResult<Material>> {
+        const { page, limit } = pagination;
 
-        return rows.map((row) => this.toDomain(row));
+        const [rows, total] = await Promise.all([
+            db.select().from(materialTable).limit(limit).offset((page - 1) * limit),
+            countRows(db, materialTable),
+        ]);
+
+        return {
+            data: rows.map((row) => this.toDomain(row)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async update(material: Material): Promise<Material> {
@@ -58,5 +98,9 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
 
     private toDomain(row: MaterialRow): Material {
         return new Material(row.id, row.name, row.importance, row.points_value, row.fk_user);
+    }
+
+    private normalizeTarget(target: string) {
+        return escapeLike(target.trim());
     }
 }

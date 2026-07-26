@@ -5,6 +5,7 @@ import { CreateMaterialDto } from "../../../request/CreateMaterialDTO";
 import { UpdateMaterialDto } from "../../../request/UpdateMaterialDTO";
 import MaterialController from "../controller/MaterialController";
 import { TokenServicePort } from "../../../../domain/TokenServicePort";
+import { requireRole } from "../middleware/requireRole";
 
 export function materialRoutes(materialController: MaterialController, tokens: TokenServicePort): Router {
   const router = Router();
@@ -52,9 +53,22 @@ export function materialRoutes(materialController: MaterialController, tokens: T
    *       - Materials
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Página desejada
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Itens por página (máximo 100)
    *     responses:
    *       200:
-   *         description: Lista de materiais
+   *         description: Lista paginada de materiais
    *       401:
    *         description: Não autenticado
    */
@@ -62,6 +76,7 @@ export function materialRoutes(materialController: MaterialController, tokens: T
     "/materials",
     authMiddleware(tokens),
     validate(CreateMaterialDto),
+    requireRole(["ADMIN"]),
     materialController.create,
   );
 
@@ -69,6 +84,45 @@ export function materialRoutes(materialController: MaterialController, tokens: T
     "/materials",
     authMiddleware(tokens),
     materialController.findAll,
+  );
+
+  /**
+   * @openapi
+   * /materials/search:
+   *   get:
+   *     summary: Busca materiais pelo nome (busca parcial)
+   *     tags:
+   *       - Materials
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: target
+   *         schema:
+   *           type: string
+   *         description: Trecho do nome do material a ser buscado
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Página desejada
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Itens por página (máximo 100)
+   *     responses:
+   *       200:
+   *         description: Lista paginada de materiais encontrados
+   *       401:
+   *         description: Não autenticado
+   */
+  router.get(
+    "/materials/search",
+    authMiddleware(tokens),
+    materialController.findByTarget,
   );
 
   /**
@@ -160,6 +214,7 @@ export function materialRoutes(materialController: MaterialController, tokens: T
   router.patch(
     "/materials/:id",
     authMiddleware(tokens),
+    requireRole(["ADMIN"]),
     validate(UpdateMaterialDto),
     materialController.update,
   );
@@ -167,6 +222,7 @@ export function materialRoutes(materialController: MaterialController, tokens: T
   router.delete(
     "/materials/:id",
     authMiddleware(tokens),
+    requireRole(["ADMIN"]),
     materialController.delete,
   );
 

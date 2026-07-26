@@ -3,6 +3,7 @@ import MaterialRepositoryPort from "../domain/ports/repository/MaterialRepositor
 import AppError from "../domain/errors/AppError";
 import { CreateMaterialDto } from "../adapters/request/CreateMaterialDTO";
 import { UpdateMaterialDto } from "../adapters/request/UpdateMaterialDTO";
+import { mapPaginatedResult, PaginationParams } from "../domain/dto/Pagination";
 
 export default class MaterialUseCase {
 
@@ -10,6 +11,11 @@ export default class MaterialUseCase {
 
     public async create(dto: CreateMaterialDto, fk_user: string) {
         return toMaterialResponse(await this.repository.save(fromMaterialCreateRequest(dto, fk_user)));
+    }
+
+    public async findByTarget(target: string | null, pagination: PaginationParams) {
+        const result = await this.repository.findByTarget(target, pagination);
+        return mapPaginatedResult(result, toMaterialResponse);
     }
 
     public async findById(id: string) {
@@ -20,9 +26,9 @@ export default class MaterialUseCase {
         return toMaterialResponse(material);
     }
 
-    public async findAll() {
-        const materials = await this.repository.findAll();
-        return materials.map(toMaterialResponse);
+    public async findAll(pagination: PaginationParams) {
+        const result = await this.repository.findAll(pagination);
+        return mapPaginatedResult(result, toMaterialResponse);
     }
 
     public async update(id: string, dto: UpdateMaterialDto) {

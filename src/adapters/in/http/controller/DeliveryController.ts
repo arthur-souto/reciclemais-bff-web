@@ -3,6 +3,7 @@ import DeliveryUseCase from "../../../../application/DeliveryUseCase";
 import Logger from "../../../../domain/ports/LoggerPort";
 import { CreateDeliveryDto } from "../../../request/CreateDeliveryDTO";
 import { UpdateDeliveryDto } from "../../../request/UpdateDeliveryDTO";
+import { parsePagination, paginatedPayload } from "../utils/pagination";
 
 export default class DeliveryController {
 
@@ -34,8 +35,8 @@ export default class DeliveryController {
 
     public findAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const response = await this.deliveryUseCase.findAll();
-            res.status(200).json({ payload: response });
+            const result = await this.deliveryUseCase.findAll(parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);

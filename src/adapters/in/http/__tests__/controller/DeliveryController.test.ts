@@ -91,16 +91,26 @@ describe("DeliveryController", () => {
   });
 
   describe("findAll", () => {
-    it("deve retornar 200 com a lista de entregas", async () => {
-      deliveryUseCase.findAll.mockResolvedValue([{ id: 1 }, { id: 2 }]);
-      const req = {} as Request;
+    it("deve retornar 200 com a lista paginada de entregas", async () => {
+      deliveryUseCase.findAll.mockResolvedValue({
+        data: [{ id: 1 }, { id: 2 }],
+        total: 2,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+      const req = { query: {} } as unknown as Request;
       const res = buildRes();
       const next = vi.fn();
 
       await controller.findAll(req, res, next);
 
+      expect(deliveryUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ payload: [{ id: 1 }, { id: 2 }] });
+      expect(res.json).toHaveBeenCalledWith({
+        payload: [{ id: 1 }, { id: 2 }],
+        meta: { total: 2, page: 1, limit: 10, totalPages: 1 },
+      });
     });
   });
 

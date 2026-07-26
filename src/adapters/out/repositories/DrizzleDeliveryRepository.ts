@@ -2,7 +2,8 @@ import { Delivery, DeliveryStatus } from "../../../domain/models/delivery";
 import DeliveryRepositoryPort from "../../../domain/ports/repository/DeliveryRepositoryPort";
 import { db } from "../../../infrastructure/database/client";
 import { deliveryTable, DeliveryRow } from "../../../infrastructure/database/schema/delivery.schema";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
+import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 
 export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort {
 
@@ -26,10 +27,22 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
         return row ? this.toDomain(row) : null;
     }
 
-    async findAll(): Promise<Delivery[]> {
-        const rows = await db.select().from(deliveryTable);
+    async findAll(pagination: PaginationParams): Promise<PaginatedResult<Delivery>> {
+        const { page, limit } = pagination;
 
-        return rows.map((row) => this.toDomain(row));
+        const [rows, [totalRow]] = await Promise.all([
+            db.select().from(deliveryTable).limit(limit).offset((page - 1) * limit),
+            db.select({ total: count() }).from(deliveryTable),
+        ]);
+        const total = totalRow?.total ?? 0;
+
+        return {
+            data: rows.map((row) => this.toDomain(row)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async update(delivery: Delivery): Promise<Delivery> {

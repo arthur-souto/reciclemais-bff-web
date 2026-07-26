@@ -3,10 +3,11 @@ import MaterialUseCase from "../../../../application/MaterialUseCase";
 import Logger from "../../../../domain/ports/LoggerPort";
 import { CreateMaterialDto } from "../../../request/CreateMaterialDTO";
 import { UpdateMaterialDto } from "../../../request/UpdateMaterialDTO";
+import { parsePagination, paginatedPayload } from "../utils/pagination";
 
 export default class MaterialController {
 
-    public constructor(private materialUseCase: MaterialUseCase, private log: Logger) {}
+    public constructor(private materialUseCase: MaterialUseCase, private log: Logger) { }
 
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -15,6 +16,17 @@ export default class MaterialController {
 
             const response = await this.materialUseCase.create(dto, req.user!.sub);
             res.status(201).json({ description: "Material criado com sucesso", data: response });
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+
+    public findByTarget = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const target = req.query.target ? req.query.target.toString() : null;
+            const result = await this.materialUseCase.findByTarget(target, parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);
@@ -34,8 +46,8 @@ export default class MaterialController {
 
     public findAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const response = await this.materialUseCase.findAll();
-            res.status(200).json({ payload: response });
+            const result = await this.materialUseCase.findAll(parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);

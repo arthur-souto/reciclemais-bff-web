@@ -2,7 +2,8 @@ import { Prize } from "../../../domain/models/prize";
 import PrizeRepositoryPort from "../../../domain/ports/repository/PrizeRepositoryPort";
 import { db } from "../../../infrastructure/database/client";
 import { prizeTable, PrizeRow } from "../../../infrastructure/database/schema/prize.schema";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
+import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 
 export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
 
@@ -23,10 +24,22 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
         return row ? this.toDomain(row) : null;
     }
 
-    async findAll(): Promise<Prize[]> {
-        const rows = await db.select().from(prizeTable);
+    async findAll(pagination: PaginationParams): Promise<PaginatedResult<Prize>> {
+        const { page, limit } = pagination;
 
-        return rows.map((row) => this.toDomain(row));
+        const [rows, [totalRow]] = await Promise.all([
+            db.select().from(prizeTable).limit(limit).offset((page - 1) * limit),
+            db.select({ total: count() }).from(prizeTable),
+        ]);
+        const total = totalRow?.total ?? 0;
+
+        return {
+            data: rows.map((row) => this.toDomain(row)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async update(prize: Prize): Promise<Prize> {

@@ -5,13 +5,14 @@ import MaterialController from "../../controller/MaterialController";
 import AppError from "../../../../../domain/errors/AppError";
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
-import { createFakeTokenService, VALID_TOKEN } from "../helpers/fakeTokenService";
+import { createFakeTokenService, VALID_TOKEN, DEFAULT_PAYLOAD } from "../helpers/fakeTokenService";
 
 const authHeader = { Authorization: `Bearer ${VALID_TOKEN}` };
 
 describe("material.routes", () => {
     let materialUseCase: any;
     let app: ReturnType<typeof buildTestApp>;
+    let forbiddenApp: ReturnType<typeof buildTestApp>;
 
     beforeEach(() => {
         materialUseCase = {
@@ -22,7 +23,10 @@ describe("material.routes", () => {
             delete: vi.fn(),
         };
         const controller = new MaterialController(materialUseCase, createFakeLogger());
-        app = buildTestApp(materialRoutes(controller, createFakeTokenService()));
+        app = buildTestApp(
+            materialRoutes(controller, createFakeTokenService({ ...DEFAULT_PAYLOAD, role: "ADMIN" })),
+        );
+        forbiddenApp = buildTestApp(materialRoutes(controller, createFakeTokenService(DEFAULT_PAYLOAD)));
     });
 
     describe("POST /materials", () => {
@@ -56,16 +60,31 @@ describe("material.routes", () => {
             expect(response.status).toBe(400);
             expect(materialUseCase.create).not.toHaveBeenCalled();
         });
+
+        it("deve retornar 403 quando o usuário autenticado não for admin", async () => {
+            const response = await request(forbiddenApp).post("/materials").set(authHeader).send(validPayload);
+
+            expect(response.status).toBe(403);
+            expect(materialUseCase.create).not.toHaveBeenCalled();
+        });
     });
 
     describe("GET /materials", () => {
-        it("deve retornar a lista de materiais quando autenticado", async () => {
-            materialUseCase.findAll.mockResolvedValue([{ id: 1, name: "Plástico" }]);
+        it("deve retornar a lista paginada de materiais quando autenticado", async () => {
+            materialUseCase.findAll.mockResolvedValue({
+                data: [{ id: 1, name: "Plástico" }],
+                total: 1,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+            });
 
             const response = await request(app).get("/materials").set(authHeader);
 
             expect(response.status).toBe(200);
             expect(response.body.payload).toHaveLength(1);
+            expect(response.body.meta).toEqual({ total: 1, page: 1, limit: 10, totalPages: 1 });
+            expect(materialUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
         });
     });
 
@@ -100,6 +119,16 @@ describe("material.routes", () => {
             expect(response.status).toBe(200);
             expect(materialUseCase.update).toHaveBeenCalledWith("1", expect.objectContaining({ name: "Atualizado" }));
         });
+
+        it("deve retornar 403 quando o usuário autenticado não for admin", async () => {
+            const response = await request(forbiddenApp)
+                .patch("/materials/1")
+                .set(authHeader)
+                .send({ name: "Atualizado" });
+
+            expect(response.status).toBe(403);
+            expect(materialUseCase.update).not.toHaveBeenCalled();
+        });
     });
 
     describe("DELETE /materials/:id", () => {
@@ -115,6 +144,13 @@ describe("material.routes", () => {
         it("deve retornar 401 sem autenticação", async () => {
             const response = await request(app).delete("/materials/1");
             expect(response.status).toBe(401);
+            expect(materialUseCase.delete).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar 403 quando o usuário autenticado não for admin", async () => {
+            const response = await request(forbiddenApp).delete("/materials/1").set(authHeader);
+
+            expect(response.status).toBe(403);
             expect(materialUseCase.delete).not.toHaveBeenCalled();
         });
     });
