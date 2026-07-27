@@ -1,4 +1,5 @@
-import { IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { IsEnum, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { EImportance } from "../../domain/models/material";
 
 export class UpdateMaterialDto {
   @IsOptional()
@@ -8,8 +9,7 @@ export class UpdateMaterialDto {
   name?: string;
 
   @IsOptional()
-  @IsInt({ message: "Importância deve ser um número inteiro" })
-  @Min(1)
+  @IsEnum(EImportance, {message: `A importancia deve estar dentro do range ${Object.values(EImportance).filter(i => typeof i === 'number')}`})
   importance?: number;
 
   @IsOptional()

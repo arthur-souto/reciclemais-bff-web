@@ -1,14 +1,24 @@
+export enum EImportance {
+    EXTREMELY_LOW = 1,
+    VERY_LOW = 2,
+    LOW = 5,
+    MEDIUM = 10,
+    LOW_IMPORTANCE = 15,
+    IMPORTANT = 20,
+    VERY_IMPORTANT = 60,
+}
+
 export class Material {
     id: null | number = null;
     name: string;
-    importance: number;
+    importance: EImportance;
     points_value: number;
     fk_user: string | null;
 
     constructor(
         id: null | number = null,
         name: string,
-        importance: number,
+        importance: EImportance,
         points_value: number,
         fk_user: string | null = null
     ) {
@@ -35,11 +45,11 @@ export class Material {
         this.name = name;
     }
 
-    getImportance(): number {
+    getImportance(): EImportance {
         return this.importance;
     }
 
-    setImportance(importance: number): void {
+    setImportance(importance: EImportance): void {
         this.importance = importance;
     }
 
