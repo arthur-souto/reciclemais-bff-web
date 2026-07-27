@@ -3,9 +3,11 @@ import request from "supertest";
 import { materialRoutes } from "../../route/material.routes";
 import MaterialController from "../../controller/MaterialController";
 import AppError from "../../../../../domain/errors/AppError";
+
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
 import { createFakeTokenService, VALID_TOKEN, DEFAULT_PAYLOAD } from "../helpers/fakeTokenService";
+import { EImportance } from "../../../../../domain/models/material";
 
 const authHeader = { Authorization: `Bearer ${VALID_TOKEN}` };
 
@@ -30,7 +32,7 @@ describe("material.routes", () => {
     });
 
     describe("POST /materials", () => {
-        const validPayload = { name: "Plástico PET", importance: 3, points_value: 10 };
+        const validPayload = { name: "Plástico PET", importance: EImportance.LOW, points_value: 10 };
 
         it("deve retornar 401 sem autenticação", async () => {
             const response = await request(app).post("/materials").send(validPayload);
@@ -59,6 +61,38 @@ describe("material.routes", () => {
 
             expect(response.status).toBe(400);
             expect(materialUseCase.create).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar 400 quando 'importance' não for uma categoria válida do enum", async () => {
+            const response = await request(app)
+                .post("/materials")
+                .set(authHeader)
+                .send({ name: "Vidro", importance: 3, points_value: 5 });
+
+            expect(response.status).toBe(400);
+            expect(response.body.errors).toEqual(
+                expect.arrayContaining([expect.objectContaining({ field: "importance" })]),
+            );
+            expect(materialUseCase.create).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ["extremely_low", EImportance.EXTREMELY_LOW],
+            ["very_low", EImportance.VERY_LOW],
+            ["low", EImportance.LOW],
+            ["medium", EImportance.MEDIUM],
+            ["low_importance", EImportance.LOW_IMPORTANCE],
+            ["important", EImportance.IMPORTANT],
+            ["very_important", EImportance.VERY_IMPORTANT],
+        ])("deve aceitar a categoria de importância '%s' (%i)", async (_label, importanceValue) => {
+            materialUseCase.create.mockResolvedValue({ id: 1, name: "Papel", importance: importanceValue, points_value: 5 });
+
+            const response = await request(app)
+                .post("/materials")
+                .set(authHeader)
+                .send({ name: "Papel", importance: importanceValue, points_value: 5 });
+
+            expect(response.status).toBe(201);
         });
 
         it("deve retornar 403 quando o usuário autenticado não for admin", async () => {
