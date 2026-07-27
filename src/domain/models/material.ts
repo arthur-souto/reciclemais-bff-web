@@ -8,6 +8,20 @@ export enum EImportance {
     VERY_IMPORTANT = 60,
 }
 
+export const BasePointsValue: Record<EImportance, number> = {
+    [EImportance.EXTREMELY_LOW]: 5,
+    [EImportance.VERY_LOW]: 10,
+    [EImportance.LOW]: 25,
+    [EImportance.MEDIUM]: 50,
+    [EImportance.LOW_IMPORTANCE]: 80,
+    [EImportance.IMPORTANT]: 120,
+    [EImportance.VERY_IMPORTANT]: 300,
+};
+
+export function getBasePointsValue(importance: EImportance) {
+    return BasePointsValue[importance]
+}
+
 export class Material {
     id: null | number = null;
     name: string;

@@ -11,14 +11,18 @@ export default class EvidenceController {
 
     public registerEvidence = async (req: Request, res: Response, next: NextFunction) => {
         try {
-             if (!req.file) {
+             if (!req.file || !req.params.id) {
                  throw new AppError("Nenhuma imagem enviada", 400);
             }
             
             this.log.info("Iniciando análise de evidência");
 
             let imageUrl = await this.BufferImageGenerator.convertToBase64AndReturnUrl(req.file.buffer, req.file.mimetype);
-            let analysisResult = await this.evidenceUseCases.analyzeEvidence(imageUrl);
+
+            let analysisResult = await this.evidenceUseCases.initAnalyze({
+                deliveryId: Number(req.params.id),
+                imageUrl
+            });
 
             this.log.info("Análise de evidência concluída", { analysisResult });
 

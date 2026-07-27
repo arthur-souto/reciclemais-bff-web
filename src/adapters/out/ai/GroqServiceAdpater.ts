@@ -38,12 +38,18 @@ export default class GroqServiceAdpater implements AiCompletionService {
           },
         ],
         reasoning_format: "hidden",
+        reasoning_effort: "none",
+        response_format: { type: "json_object" },
         temperature: options?.temperature ?? this.DEFAULT_TEMPERATURE,
         max_tokens: options?.maxTokens ?? this.DEFAULT_MAX_TOKENS,
       });
 
       const content = response.choices[0]?.message?.content ?? "";
-      this.log.info("Análise de imagem recebida", { chars: content.length });
+      this.log.info("Análise de imagem recebida", {
+        chars: content.length,
+        finishReason: response.choices[0]?.finish_reason,
+        usage: response.usage,
+      });
       return content;
     } catch (err) {
       this.log.error("Erro ao analisar imagem via Groq", { err });

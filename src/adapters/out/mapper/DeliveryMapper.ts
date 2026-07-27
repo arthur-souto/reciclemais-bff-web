@@ -1,4 +1,5 @@
 import { Delivery, DeliveryStatus } from "../../../domain/models/delivery";
+import { Material } from "../../../domain/models/material";
 import { CreateDeliveryDto } from "../../request/CreateDeliveryDTO";
 import { UpdateDeliveryDto } from "../../request/UpdateDeliveryDTO";
 
@@ -11,6 +12,7 @@ export function toDeliveryResponse(delivery: Delivery): {
     evidence_url: string | null;
     fk_user: string | null;
     fk_material: number | null;
+    material: Material | null;
 } {
     return {
         id: delivery.getId(),
@@ -21,6 +23,7 @@ export function toDeliveryResponse(delivery: Delivery): {
         evidence_url: delivery.getEvidence_url(),
         fk_user: delivery.getFk_user(),
         fk_material: delivery.getFk_material(),
+        material: delivery.getMaterial()
     };
 }
 

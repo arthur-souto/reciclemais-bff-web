@@ -1,4 +1,5 @@
 import { EImportance, Material } from "../../../domain/models/material";
+import { MaterialRow } from "../../../infrastructure/database/schema/material.schema";
 import { CreateMaterialDto } from "../../request/CreateMaterialDTO";
 import { UpdateMaterialDto } from "../../request/UpdateMaterialDTO";
 
@@ -27,4 +28,15 @@ export function applyMaterialUpdateRequest(material: Material, req: UpdateMateri
     if (req.importance !== undefined) material.setImportance(req.importance);
     if (req.points_value !== undefined) material.setPoints_value(req.points_value);
     return material;
+}
+
+
+export function toMaterialDomain(material: MaterialRow) {
+    return new Material(
+        material.id ?? null,
+        material.name,
+        material.importance,
+        material.points_value,
+        material.fk_user ?? null
+    )
 }

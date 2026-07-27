@@ -19,36 +19,43 @@ describe("POST /evidence", () => {
   let app: ReturnType<typeof buildTestApp>;
 
   beforeEach(() => {
-    evidenceUseCases = { analyzeEvidence: vi.fn() };
+    evidenceUseCases = { initAnalyze: vi.fn() };
     const controller = new EvidenceController(evidenceUseCases, createFakeLogger());
     app = buildTestApp(evidenceRoutes(controller, createFakeTokenService()));
   });
 
   it("deve retornar 401 quando não autenticado", async () => {
-    const response = await request(app).post("/evidence").attach("evidence", VALID_PNG, "foto.png");
+    const response = await request(app).post("/evidence/1").attach("evidence", VALID_PNG, "foto.png");
 
     expect(response.status).toBe(401);
-    expect(evidenceUseCases.analyzeEvidence).not.toHaveBeenCalled();
+    expect(evidenceUseCases.initAnalyze).not.toHaveBeenCalled();
   });
 
   it("deve retornar 400 quando nenhuma imagem for enviada", async () => {
-    const response = await request(app).post("/evidence").set(authHeader);
+    const response = await request(app).post("/evidence/1").set(authHeader);
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("Nenhuma imagem enviada");
-    expect(evidenceUseCases.analyzeEvidence).not.toHaveBeenCalled();
+    expect(evidenceUseCases.initAnalyze).not.toHaveBeenCalled();
   });
 
   it("deve retornar 200 com o resultado da análise quando a imagem for enviada", async () => {
-    evidenceUseCases.analyzeEvidence.mockResolvedValue("VALIDADO: separação correta de materiais.");
+    const analysisResult = {
+      validado: true,
+      motivo: "separação correta de materiais.",
+      qualidade: 1,
+      pontuacao_final: 10,
+    };
+    evidenceUseCases.initAnalyze.mockResolvedValue(analysisResult);
 
     const response = await request(app)
-      .post("/evidence")
+      .post("/evidence/1")
       .set(authHeader)
       .attach("evidence", VALID_PNG, "foto.png");
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ description: "VALIDADO: separação correta de materiais." });
-    expect(evidenceUseCases.analyzeEvidence).toHaveBeenCalledTimes(1);
+    expect(response.body).toEqual({ description: analysisResult });
+    expect(evidenceUseCases.initAnalyze).toHaveBeenCalledTimes(1);
+    expect(evidenceUseCases.initAnalyze.mock.calls[0][0].deliveryId).toBe(1);
   });
 });

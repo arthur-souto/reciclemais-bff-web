@@ -1,3 +1,5 @@
+import { Material } from "./material";
+
 export enum DeliveryStatus {
     PENDING = "PENDING",
     COMPLETED = "COMPLETED",
@@ -5,14 +7,15 @@ export enum DeliveryStatus {
 }
 
 export class Delivery {
-    id: null | number = null;
-    local: string;
-    material_type: string;
-    status: DeliveryStatus;
-    quantity: number;
-    evidence_url: string | null;
-    fk_user: string | null;
-    fk_material: number | null;
+    private id: null | number = null;
+    private local: string;
+    private material_type: string;
+    private status: DeliveryStatus;
+    private quantity: number;
+    private evidence_url: string | null;
+    private fk_user: string | null;
+    private fk_material: number | null;
+    private material: Material | null = null; 
 
     constructor(
         id: null | number = null,
@@ -34,8 +37,16 @@ export class Delivery {
         this.fk_material = fk_material;
     }
 
+    getMaterial(): Material | null {
+        return this.material;
+    }
+
     getId(): number | null {
         return this.id;
+    }
+
+    setMaterial(material: Material): void {
+        this.material = material;
     }
 
     setId(id: number): void {

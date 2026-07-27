@@ -8,6 +8,7 @@ import { isForeignKeyViolation } from "./DrizzleErrors";
 import { escapeLike } from "../../../utils/ScapeLike";
 import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 import { countRows, emptyResult } from "../utils/SqlUtils";
+import { toMaterialDomain } from "../mapper/MaterialMapper";
 
 export default class DrizzleMaterialRepository implements MaterialRepositoryPort {
 
@@ -29,7 +30,7 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
         ]);
 
         return {
-            data: rows.map((row) => this.toDomain(row)),
+            data: rows.map((row) => toMaterialDomain(row)),
             total,
             page,
             limit,
@@ -45,13 +46,13 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
             fk_user: material.getFk_user(),
         }).returning();
 
-        return this.toDomain(row as MaterialRow);
+        return toMaterialDomain(row as MaterialRow);
     }
 
     async findById(id: number): Promise<Material | null> {
         const [row] = await db.select().from(materialTable).where(eq(materialTable.id, id));
 
-        return row ? this.toDomain(row) : null;
+        return row ? toMaterialDomain(row) : null;
     }
 
     async findAll(pagination: PaginationParams): Promise<PaginatedResult<Material>> {
@@ -63,7 +64,7 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
         ]);
 
         return {
-            data: rows.map((row) => this.toDomain(row)),
+            data: rows.map((row) => toMaterialDomain(row)),
             total,
             page,
             limit,
@@ -82,7 +83,7 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
             .where(eq(materialTable.id, material.getId()!))
             .returning();
 
-        return this.toDomain(row as MaterialRow);
+        return toMaterialDomain(row as MaterialRow);
     }
 
     async delete(id: number): Promise<void> {
@@ -94,10 +95,6 @@ export default class DrizzleMaterialRepository implements MaterialRepositoryPort
             }
             throw err;
         }
-    }
-
-    private toDomain(row: MaterialRow): Material {
-        return new Material(row.id, row.name, row.importance, row.points_value, row.fk_user);
     }
 
     private normalizeTarget(target: string) {

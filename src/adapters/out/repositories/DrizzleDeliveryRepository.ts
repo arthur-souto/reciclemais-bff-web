@@ -4,8 +4,30 @@ import { db } from "../../../infrastructure/database/client";
 import { deliveryTable, DeliveryRow } from "../../../infrastructure/database/schema/delivery.schema";
 import { count, eq } from "drizzle-orm";
 import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
+import { MaterialRow, materialTable } from "../../../infrastructure/database/schema/material.schema";
+import { toMaterialDomain } from "../mapper/MaterialMapper";
 
 export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort {
+
+    async findByIdIncludeDelivery(id: number): Promise<Delivery | null> {
+        const [row] = await db.select(
+            {
+                delivery: deliveryTable,
+                material: materialTable
+            }
+        ).
+        from(deliveryTable).
+        leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id)).
+        where(eq(deliveryTable.id, id));
+        
+        if(!row) return null;
+
+        if(row.material) {
+            return this.toDomain(row.delivery, row.material);
+        }
+
+        return this.toDomain(row.delivery);
+    }
 
     async save(delivery: Delivery): Promise<Delivery> {
         const [row] = await db.insert(deliveryTable).values({
@@ -31,13 +53,20 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
         const { page, limit } = pagination;
 
         const [rows, [totalRow]] = await Promise.all([
-            db.select().from(deliveryTable).limit(limit).offset((page - 1) * limit),
+            db.select(
+                { 
+                delivery: deliveryTable,
+                material: materialTable
+            }
+            ).from(deliveryTable)
+            .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
+            .limit(limit).offset((page - 1) * limit),
             db.select({ total: count() }).from(deliveryTable),
         ]);
         const total = totalRow?.total ?? 0;
 
         return {
-            data: rows.map((row) => this.toDomain(row)),
+            data: rows.map((row) => this.toDomain(row.delivery, row.material ?? undefined)),
             total,
             page,
             limit,
@@ -66,8 +95,8 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
         await db.delete(deliveryTable).where(eq(deliveryTable.id, id));
     }
 
-    private toDomain(row: DeliveryRow): Delivery {
-        return new Delivery(
+    private toDomain(row: DeliveryRow, material?: MaterialRow): Delivery {
+        const delivery = new Delivery(
             row.id,
             row.local,
             row.material_type,
@@ -77,5 +106,13 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
             row.fk_user,
             row.fk_material
         );
+
+        if(material !== undefined) {
+            delivery.setMaterial(
+                toMaterialDomain(material)
+            )
+        }
+
+        return delivery
     }
 }

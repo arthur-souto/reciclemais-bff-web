@@ -78,7 +78,64 @@ export function deliveryRoutes(deliveryController: DeliveryController, tokens: T
    *         description: Itens por página (máximo 100)
    *     responses:
    *       200:
-   *         description: Lista paginada de entregas
+   *         description: Lista paginada de entregas, incluindo o material vinculado a cada entrega
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 payload:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id:
+   *                         type: integer
+   *                       local:
+   *                         type: string
+   *                       material_type:
+   *                         type: string
+   *                       status:
+   *                         type: string
+   *                         enum: [PENDING, COMPLETED, CANCELED]
+   *                       quantity:
+   *                         type: integer
+   *                       evidence_url:
+   *                         type: string
+   *                         nullable: true
+   *                       fk_user:
+   *                         type: string
+   *                         nullable: true
+   *                       fk_material:
+   *                         type: integer
+   *                         nullable: true
+   *                       material:
+   *                         type: object
+   *                         nullable: true
+   *                         description: Material vinculado à entrega
+   *                         properties:
+   *                           id:
+   *                             type: integer
+   *                           name:
+   *                             type: string
+   *                           importance:
+   *                             type: integer
+   *                           points_value:
+   *                             type: integer
+   *                           fk_user:
+   *                             type: string
+   *                             nullable: true
+   *                 meta:
+   *                   type: object
+   *                   properties:
+   *                     total:
+   *                       type: integer
+   *                     page:
+   *                       type: integer
+   *                     limit:
+   *                       type: integer
+   *                     totalPages:
+   *                       type: integer
    *       401:
    *         description: Não autenticado
    */

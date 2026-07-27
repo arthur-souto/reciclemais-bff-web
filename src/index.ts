@@ -48,7 +48,7 @@ const prizeRepository: PrizeRepositoryPort = new DrizzlePrizeRepository()
 const deliveryRepository: DeliveryRepositoryPort = new DrizzleDeliveryRepository()
 
 //use cases
-const evidenceUseCases = new EvidenceUseCases(groqService);
+const evidenceUseCases = new EvidenceUseCases(groqService, deliveryRepository, logger);
 const userUseCases = new UserUseCase(userRepository, passwordHasher)
 const authUseCases = new AuthUseCases(userRepository, passwordHasher, tokenService)
 const materialUseCases = new MaterialUseCase(materialRepository)

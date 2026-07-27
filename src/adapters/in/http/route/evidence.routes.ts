@@ -14,13 +14,20 @@ export function evidenceRoutes(evidenceController: EvidenceController, tokens: T
 
   /**
    * @openapi
-   * /evidence:
+   * /evidence/{id}:
    *   post:
    *     summary: Registra uma evidência a partir de uma imagem
    *     tags:
    *       - Evidence
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: ID da entrega (delivery) associada à evidência
    *     requestBody:
    *       required: true
    *       content:
@@ -45,7 +52,7 @@ export function evidenceRoutes(evidenceController: EvidenceController, tokens: T
    *         description: Erro ao processar a imagem
    */
   router.post(
-    "/evidence",
+    "/evidence/:id",
     authMiddleware(tokens),
     upload.single("evidence"),
     evidenceController.registerEvidence,
