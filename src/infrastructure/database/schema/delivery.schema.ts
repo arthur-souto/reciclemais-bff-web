@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, serial, uuid, varchar } from "drizzle-orm/pg-core";
+import { date, integer, pgEnum, pgTable, serial, uuid, varchar } from "drizzle-orm/pg-core";
 import { usersTable } from "./user.schema";
 import { materialTable } from "./material.schema";
 
@@ -14,10 +14,17 @@ export const deliveryTable = pgTable("deliveries", {
     material_type: varchar({ length: 255 }).notNull(),
     status: activityStatus("status").default("PENDING").notNull(),
     quantity: integer().notNull(),
-    total_score:integer(),
+    weight: integer(),
+    total_score: integer(),
     evidence_url: varchar("evidence_url", { length: 2048 }),
+    collected_at: date(),
+    latitude: integer(),
+    longitude: integer(),
+    created_at: date(),
+    updated_at: date(),
     fk_user: uuid("fk_user").references(() => usersTable.id),
     fk_material: integer("fk_material").references(() => materialTable.id),
+    fk_approved_by: uuid("fk_approved_by").references(() => usersTable.id)
 })
 
 export type DeliveryRow = typeof deliveryTable.$inferSelect;

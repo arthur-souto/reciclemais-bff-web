@@ -31,9 +31,23 @@ describe("DeliveryController", () => {
 
   describe("create", () => {
     it("deve retornar 201 com os dados da entrega criada", async () => {
-      deliveryUseCase.create.mockResolvedValue({ id: 1, fk_material: 2 });
+      const responseData = {
+        id: 1,
+        fk_material: 2,
+        weight: 5,
+        latitude: 1,
+        longitude: 1,
+        collected_at: new Date(),
+      };
+      deliveryUseCase.create.mockResolvedValue(responseData);
       const req = {
-        body: { fk_material: 2, weight: 5 },
+        body: {
+          fk_material: 2,
+          weight: 5,
+          latitude: 1,
+          longitude: 1,
+          collected_at: new Date(),
+        },
         user: { sub: FK_USER },
       } as unknown as Request;
       const res = buildRes();
@@ -45,7 +59,7 @@ describe("DeliveryController", () => {
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         description: "Entrega criada com sucesso",
-        data: { id: 1, fk_material: 2 },
+        data: responseData,
       });
     });
 
