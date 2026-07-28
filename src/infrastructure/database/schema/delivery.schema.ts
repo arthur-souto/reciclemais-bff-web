@@ -14,6 +14,7 @@ export const deliveryTable = pgTable("deliveries", {
     material_type: varchar({ length: 255 }).notNull(),
     status: activityStatus("status").default("PENDING").notNull(),
     quantity: integer().notNull(),
+    total_score:integer(),
     evidence_url: varchar("evidence_url", { length: 2048 }),
     fk_user: uuid("fk_user").references(() => usersTable.id),
     fk_material: integer("fk_material").references(() => materialTable.id),
