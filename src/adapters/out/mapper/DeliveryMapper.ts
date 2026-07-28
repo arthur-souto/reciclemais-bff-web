@@ -13,11 +13,11 @@ export function toDeliveryResponse(delivery: Delivery): {
     weight: number;
     total_score: number;
     evidence_url: string | null;
-    collected_at: Date;
+    collected_at: number;
     latitude: number;
     longitude: number;
-    created_at: Date;
-    updated_at: Date;
+    created_at: number;
+    updated_at: number;
     fk_user: string | null;
     fk_material: number | null;
     fk_approved_by: string | null;
@@ -44,7 +44,7 @@ export function toDeliveryResponse(delivery: Delivery): {
     };
 }
 
-export function fromDeliveryCreateRequest(req: CreateDeliveryDto, fk_user: string,fk_approved_by:string): Delivery {
+export function fromDeliveryCreateRequest(req: CreateDeliveryDto, fk_user: string,fk_approved_by:string | null = null): Delivery {
     return new Delivery(
         null,
         req.local,
@@ -57,8 +57,8 @@ export function fromDeliveryCreateRequest(req: CreateDeliveryDto, fk_user: strin
         req.collected_at,
         req.latitude,
         req.longitude,
-        new Date,
-        new Date,
+        req.created_at,
+        req.updated_at,
         fk_user,
         req.fk_material,
         fk_approved_by

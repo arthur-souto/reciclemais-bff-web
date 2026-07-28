@@ -6,8 +6,10 @@ export class CreateDeliveryDto {
   @MaxLength(255)
   local!: string;
 
-  @IsDate({message: "A data de coleta do material é obrigatória"})
-  collected_at!:Date;
+  @IsOptional()
+  @IsInt({ message: "A data de coleta do material é obrigatória" })
+  @Min(1)
+  collected_at!: number;
 
 
   @IsString()
@@ -37,6 +39,16 @@ export class CreateDeliveryDto {
 
   @IsInt({ message: "Material inválido" })
   fk_material!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  created_at!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  updated_at!: number;
 
   @IsOptional()
   @IsUrl({}, { message: "URL de evidência inválida" })

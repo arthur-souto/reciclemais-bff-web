@@ -16,11 +16,11 @@ export class Delivery {
     private weight: number;
     private total_score: number;
     private evidence_url: string | null;
-    private collected_at: Date;
+    private collected_at: number;
     private latitude: number;
     private longitude: number;
-    private created_at: Date;
-    private updated_at: Date;
+    private created_at: number;
+    private updated_at: number;
     private fk_user: string | null;
     private fk_material: number | null;
     private fk_approved_by: string | null;
@@ -35,11 +35,11 @@ export class Delivery {
         weight: number,
         total_score: number,
         evidence_url: string | null = null,
-        collected_at: Date,
+        collected_at: number,
         latitude: number,
         longitude: number,
-        created_at: Date,
-        updated_at: Date,
+        created_at: number,
+        updated_at: number,
         fk_user: string | null = null,
         fk_material: number | null = null,
         fk_approved_by: string | null = null
@@ -118,11 +118,11 @@ export class Delivery {
         this.quantity = quantity;
     }
 
-    getCollected_at(): Date {
+    getCollected_at(): number {
         return this.collected_at;
     }
 
-    setCollected_at(collected_at: Date): void {
+    setCollected_at(collected_at: number): void {
         this.collected_at = collected_at;
     }
 
@@ -152,19 +152,19 @@ export class Delivery {
         this.total_score = total_score;
     }
 
-    getCreated_at(): Date {
+    getCreated_at(): number {
         return this.created_at;
     }
 
-    setCreated_at(created_at: Date): void {
+    setCreated_at(created_at: number): void {
         this.created_at = created_at;
     }
 
-    getUpdated_at(): Date {
+    getUpdated_at(): number {
         return this.updated_at;
     }
 
-    setUpdated_at(updated_at: Date): void {
+    setUpdated_at(updated_at: number): void {
         this.updated_at = updated_at;
     }
 

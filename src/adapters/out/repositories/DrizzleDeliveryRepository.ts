@@ -7,8 +7,11 @@ import { PaginatedResult, PaginationParams } from "../../../domain/dto/Paginatio
 import { MaterialRow, materialTable } from "../../../infrastructure/database/schema/material.schema";
 import { toMaterialDomain } from "../mapper/MaterialMapper";
 
+const defaultDate = new Date(2000, 0, 1)
+
 export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort {
 
+    
     async findByIdIncludeDelivery(id: number): Promise<Delivery | null> {
         const [row] = await db.select(
             {
@@ -16,13 +19,13 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
                 material: materialTable
             }
         ).
-        from(deliveryTable).
-        leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id)).
-        where(eq(deliveryTable.id, id));
-        
-        if(!row) return null;
+            from(deliveryTable).
+            leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id)).
+            where(eq(deliveryTable.id, id));
 
-        if(row.material) {
+        if (!row) return null;
+
+        if (row.material) {
             return this.toDomain(row.delivery, row.material);
         }
 
@@ -54,13 +57,13 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
 
         const [rows, [totalRow]] = await Promise.all([
             db.select(
-                { 
-                delivery: deliveryTable,
-                material: materialTable
-            }
+                {
+                    delivery: deliveryTable,
+                    material: materialTable
+                }
             ).from(deliveryTable)
-            .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
-            .limit(limit).offset((page - 1) * limit),
+                .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
+                .limit(limit).offset((page - 1) * limit),
             db.select({ total: count() }).from(deliveryTable),
         ]);
         const total = totalRow?.total ?? 0;
@@ -102,12 +105,20 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
             row.material_type,
             row.status as DeliveryStatus,
             row.quantity,
+            row.weight ?? 0,
+            row.total_score ?? 0,
             row.evidence_url,
+            row.collected_at ?? 0, 
+            row.latitude ?? 0,
+            row.longitude ?? 0,
+            row.created_at ?? 0,
+            row.updated_at ?? 0,
             row.fk_user,
-            row.fk_material
+            row.fk_material,
+            row.fk_approved_by
         );
 
-        if(material !== undefined) {
+        if (material !== undefined) {
             delivery.setMaterial(
                 toMaterialDomain(material)
             )

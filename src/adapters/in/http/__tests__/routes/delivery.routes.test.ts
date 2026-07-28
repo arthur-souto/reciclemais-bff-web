@@ -18,7 +18,7 @@ describe("delivery.routes", () => {
     const validPayload = {
         local: "Ecoponto Centro",
         material_type: "Plástico",
-        collected_at: new Date().toISOString(),
+        collected_at: Date.now(),
         quantity: 2,
         weight: 5,
         total_score: 10,
@@ -50,7 +50,7 @@ describe("delivery.routes", () => {
         });
 
 
-        it.skip("deve criar a entrega e retornar 201 quando autenticado e válido", async () => {
+        it("deve criar a entrega e retornar 201 quando autenticado e válido", async () => {
             deliveryUseCase.create.mockResolvedValue({ id: 1, ...validPayload });
 
             const response = await request(app).post("/deliveries").set(authHeader).send(validPayload);
@@ -72,7 +72,7 @@ describe("delivery.routes", () => {
             );
         });
 
-        it.skip("deve retornar 404 quando o material referenciado não existir", async () => {
+        it("deve retornar 404 quando o material referenciado não existir", async () => {
             deliveryUseCase.create.mockRejectedValue(new AppError("Material não encontrado", 404));
 
             const response = await request(app).post("/deliveries").set(authHeader).send(validPayload);
@@ -81,16 +81,14 @@ describe("delivery.routes", () => {
             expect(response.body.error).toBe("Material não encontrado");
         });
 
-        it("deve retornar 400 quando 'collected_at' não for enviado", async () => {
+        it("deve aceitar a criação quando 'collected_at' não for enviado (campo opcional)", async () => {
             const { collected_at, ...payload } = validPayload;
+            deliveryUseCase.create.mockResolvedValue({ id: 1, ...payload });
 
             const response = await request(app).post("/deliveries").set(authHeader).send(payload);
 
-            expect(response.status).toBe(400);
-            expect(response.body.errors).toEqual(
-                expect.arrayContaining([expect.objectContaining({ field: "collected_at" })]),
-            );
-            expect(deliveryUseCase.create).not.toHaveBeenCalled();
+            expect(response.status).toBe(201);
+            expect(deliveryUseCase.create).toHaveBeenCalled();
         });
 
         it("deve retornar 400 quando 'latitude' não for enviada", async () => {
