@@ -1,4 +1,4 @@
-import { date, integer, pgEnum, pgTable, serial, uuid, varchar } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, serial, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { usersTable } from "./user.schema";
 import { materialTable } from "./material.schema";
 
@@ -17,11 +17,11 @@ export const deliveryTable = pgTable("deliveries", {
     weight: integer(),
     total_score: integer(),
     evidence_url: varchar("evidence_url", { length: 2048 }),
-    collected_at: integer(),
+    collected_at: timestamp("collected_at", { mode: "date" }),
     latitude: integer(),
     longitude: integer(),
-    created_at: integer(),
-    updated_at: integer(),
+    created_at: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updated_at: timestamp("updated_at", { mode: "date" }).defaultNow(),
     fk_user: uuid("fk_user").references(() => usersTable.id),
     fk_material: integer("fk_material").references(() => materialTable.id),
     fk_approved_by: uuid("fk_approved_by").references(() => usersTable.id)

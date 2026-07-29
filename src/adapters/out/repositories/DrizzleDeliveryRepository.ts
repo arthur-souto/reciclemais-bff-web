@@ -2,12 +2,10 @@ import { Delivery, DeliveryStatus } from "../../../domain/models/delivery";
 import DeliveryRepositoryPort from "../../../domain/ports/repository/DeliveryRepositoryPort";
 import { db } from "../../../infrastructure/database/client";
 import { deliveryTable, DeliveryRow } from "../../../infrastructure/database/schema/delivery.schema";
-import { count, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 import { MaterialRow, materialTable } from "../../../infrastructure/database/schema/material.schema";
 import { toMaterialDomain } from "../mapper/MaterialMapper";
-
-const defaultDate = new Date(2000, 0, 1)
 
 export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort {
 
@@ -38,9 +36,17 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
             material_type: delivery.getMaterial_type(),
             status: delivery.getStatus(),
             quantity: delivery.getQuantity(),
+            weight: delivery.getWeight(),
+            total_score: delivery.getTotal_score(),
             evidence_url: delivery.getEvidence_url(),
+            collected_at: delivery.getCollected_at(),
+            latitude: delivery.getLatitude(),
+            longitude: delivery.getLongitude(),
+            created_at: delivery.getCreated_at(),
+            updated_at: delivery.getUpdated_at(),
             fk_user: delivery.getFk_user(),
             fk_material: delivery.getFk_material(),
+            fk_approved_by: delivery.getFk_approved_by(),
         }).returning();
 
         return this.toDomain(row as DeliveryRow);
@@ -63,8 +69,10 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
                 }
             ).from(deliveryTable)
                 .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
-                .limit(limit).offset((page - 1) * limit),
-            db.select({ total: count() }).from(deliveryTable),
+                .limit(limit).offset((page - 1) * limit)
+                .orderBy(desc(deliveryTable.created_at)),
+                
+            db.select({ total: count() }).from(deliveryTable)
         ]);
         const total = totalRow?.total ?? 0;
 
@@ -108,11 +116,11 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
             row.weight ?? 0,
             row.total_score ?? 0,
             row.evidence_url,
-            row.collected_at ?? 0, 
+            row.collected_at ?? new Date(0),
             row.latitude ?? 0,
             row.longitude ?? 0,
-            row.created_at ?? 0,
-            row.updated_at ?? 0,
+            row.created_at ?? new Date(0),
+            row.updated_at ?? new Date(0),
             row.fk_user,
             row.fk_material,
             row.fk_approved_by

@@ -1,4 +1,5 @@
 import { IsDate, IsEnum, IsInt, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
+import { Type } from "class-transformer";
 import { DeliveryStatus } from "../../domain/models/delivery";
 
 export class UpdateDeliveryDto {
@@ -9,6 +10,7 @@ export class UpdateDeliveryDto {
   local?: string;
 
   @IsOptional()
+  @Type(() => Date)
   @IsDate({ message: "A data de coleta do material é obrigatória" })
   collected_at?: Date;
 

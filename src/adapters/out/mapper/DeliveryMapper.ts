@@ -13,11 +13,11 @@ export function toDeliveryResponse(delivery: Delivery): {
     weight: number;
     total_score: number;
     evidence_url: string | null;
-    collected_at: number;
+    collected_at: Date;
     latitude: number;
     longitude: number;
-    created_at: number;
-    updated_at: number;
+    created_at: Date;
+    updated_at: Date;
     fk_user: string | null;
     fk_material: number | null;
     fk_approved_by: string | null;
