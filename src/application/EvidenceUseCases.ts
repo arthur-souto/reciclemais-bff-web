@@ -51,6 +51,7 @@ export default class EvidenceUseCases {
 
             if (delivery.getStatus() === DeliveryStatus.PENDING) {
                 delivery.setStatus(DeliveryStatus.COMPLETED)
+                delivery.setTotal_score(result.finalScore)
                 await this.deliveryRepository.update(delivery)
             }
 
