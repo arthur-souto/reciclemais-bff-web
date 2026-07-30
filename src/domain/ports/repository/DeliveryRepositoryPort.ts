@@ -6,6 +6,6 @@ export default interface DeliveryRepositoryPort {
     findById(id: number): Promise<Delivery | null>;
     findByIdIncludeDelivery(id: number): Promise<Delivery | null>;
     findAll(pagination: PaginationParams): Promise<PaginatedResult<Delivery>>;
-    update(delivery: Delivery): Promise<Delivery>;
+    update(delivery: Delivery, tx?: unknown): Promise<Delivery>;
     delete(id: number): Promise<void>;
 }

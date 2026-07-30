@@ -17,10 +17,6 @@ export class CreateDeliveryDto {
   @MaxLength(255)
   material_type!: string;
 
-  @IsInt({ message: "A pontuação final deve ser um número inteiro" })
-  @Min(1)
-  total_score!: number;
-
   @IsInt({ message: "Quantidade deve ser um número inteiro" })
   @Min(1)
   quantity!: number;
@@ -39,16 +35,6 @@ export class CreateDeliveryDto {
 
   @IsInt({ message: "Material inválido" })
   fk_material!: number;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  created_at!: Date;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  updated_at!: Date;
 
   @IsOptional()
   @IsUrl({}, { message: "URL de evidência inválida" })

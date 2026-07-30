@@ -21,7 +21,8 @@ export default class EvidenceController {
 
             let analysisResult = await this.evidenceUseCases.initAnalyze({
                 deliveryId: Number(req.params.id),
-                imageUrl
+                imageUrl,
+                userId: req.user!.sub
             });
 
             this.log.info("Análise de evidência concluída", { analysisResult });

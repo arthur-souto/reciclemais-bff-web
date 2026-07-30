@@ -1,6 +1,6 @@
 import { User } from "../../../domain/models/user";
 import UserRepositoryPort from "../../../domain/ports/repository/UserRepositoryPort";
-import { db } from "../../../infrastructure/database/client";
+import { db, DbClient } from "../../../infrastructure/database/client";
 import { usersTable, UserRow } from "../../../infrastructure/database/schema/user.schema";
 import { eq } from "drizzle-orm";
 import AppError from "../../../domain/errors/AppError";
@@ -16,7 +16,11 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
             name: user.getName(),
             email: user.getEmail(),
             cpf: user.getCpf(),
-            password: user.getPassword()
+            password: user.getPassword(),
+            profile_image: user.getProfileImage(),
+            phone: user.getPhone(),
+            cep: user.getCep(),
+            address: user.getAddress(),
         })
         .returning();
 
@@ -39,12 +43,30 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
         return row ? this.toDomain(row) : null;
     }
 
+    async incrementScore(user: User, score: number, tx?: unknown): Promise<number> {
+        const executor = (tx as DbClient) ?? db;
+
+        const [row] = await executor.update(usersTable)
+        .set({
+            total_score: user.getTotalScore() + score
+        })
+        .where(eq(usersTable.id, user.getId()!))
+        .returning()
+
+        return row?.total_score!;
+    }
+
     async update(user: User): Promise<User> {
         const [row] = await db.update(usersTable)
             .set({
                 name: user.getName(),
                 email: user.getEmail(),
                 cpf: user.getCpf(),
+                profile_image: user.getProfileImage(),
+                phone: user.getPhone(),
+                cep: user.getCep(),
+                address: user.getAddress(),
+                updated_at: new Date(),
             })
             .where(eq(usersTable.id, user.getId()!))
             .returning();
@@ -70,7 +92,14 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
             userRow.email,
             userRow.cpf,
             userRow.password,
-            userRow.role
+            userRow.role,
+            userRow.profile_image,
+            userRow.phone,
+            userRow.cep,
+            userRow.address,
+            userRow.total_score,
+            userRow.created_at ?? new Date(),
+            userRow.updated_at ?? new Date()
         );
     }
  
