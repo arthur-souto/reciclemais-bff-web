@@ -3,6 +3,8 @@ import { DeliveryStatus } from "../domain/models/delivery";
 import { AiCompletionService } from "../domain/ports/AiPort";
 import Logger from "../domain/ports/LoggerPort";
 import DeliveryRepositoryPort from "../domain/ports/repository/DeliveryRepositoryPort";
+import UserRepositoryPort from "../domain/ports/repository/UserRepositoryPort";
+import TransactionManagerPort from "../domain/ports/TransactionManagerPort";
 
 export interface EvidenceAnalysisResult {
     valid: boolean;
@@ -24,18 +26,21 @@ export default class EvidenceUseCases {
     constructor(
         private groqService: AiCompletionService,
         private deliveryRepository: DeliveryRepositoryPort,
+        private userRepository: UserRepositoryPort,
+        private transactionManager: TransactionManagerPort,
         private readonly log: Logger
     ) { }
 
-
-    public async initAnalyze({ deliveryId, imageUrl }: {
+    public async initAnalyze({ userId ,deliveryId, imageUrl }: {
         deliveryId: number,
-        imageUrl: string
+        imageUrl: string,
+        userId: string
     }): Promise<EvidenceAnalysisResult> {
 
         const delivery = await this.deliveryRepository.findByIdIncludeDelivery(deliveryId);
+        const user = await this.userRepository.findById(userId);
 
-        if (!delivery) throw new AppError("Entrega não encontrada", 404);
+        if (!delivery || !user) throw new AppError("Entrega/Usuario não encontrado", 404);
 
         this.log.info("Delivery recebida para avaliação", delivery);
 
@@ -52,7 +57,11 @@ export default class EvidenceUseCases {
             if (delivery.getStatus() === DeliveryStatus.PENDING) {
                 delivery.setStatus(DeliveryStatus.COMPLETED)
                 delivery.setTotal_score(result.finalScore)
-                await this.deliveryRepository.update(delivery)
+
+                await this.transactionManager.run(async (tx) => {
+                    await this.userRepository.incrementScore(user, result.finalScore, tx)
+                    await this.deliveryRepository.update(delivery, tx)
+                })
             }
 
             this.log.info("Delivery atualizada com sucesso", delivery)

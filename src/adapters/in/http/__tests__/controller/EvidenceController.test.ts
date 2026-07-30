@@ -39,6 +39,7 @@ describe("EvidenceController", () => {
     const req = {
       file: { buffer: VALID_PNG, mimetype: "image/png" },
       params: { id: "1" },
+      user: { sub: "user-1" },
     } as unknown as Request;
     const res = buildRes();
     const next = vi.fn();
@@ -48,6 +49,7 @@ describe("EvidenceController", () => {
     expect(evidenceUseCases.initAnalyze).toHaveBeenCalledTimes(1);
     expect(evidenceUseCases.initAnalyze.mock.calls[0][0].deliveryId).toBe(1);
     expect(evidenceUseCases.initAnalyze.mock.calls[0][0].imageUrl).toMatch(/^data:image\/png;base64,/);
+    expect(evidenceUseCases.initAnalyze.mock.calls[0][0].userId).toBe("user-1");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       description: analysisResult,
@@ -96,6 +98,7 @@ describe("EvidenceController", () => {
     const req = {
       file: { buffer: VALID_PNG, mimetype: "image/png" },
       params: { id: "1" },
+      user: { sub: "user-1" },
     } as unknown as Request;
     const res = buildRes();
     const next = vi.fn();

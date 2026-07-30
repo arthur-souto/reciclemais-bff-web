@@ -61,6 +61,50 @@ describe("user.routes", () => {
 
             expect(response.status).not.toBe(401);
         });
+
+        it("deve aceitar profile_image, phone, cep e address opcionais", async () => {
+            userUseCase.createUser.mockResolvedValue({ id: VALID_ID, name: "Pedro" });
+
+            const response = await request(app).post("/users").send({
+                name: "Pedro",
+                email: "test@gmail.com",
+                cpf: "95975315000",
+                password: "password123!",
+                profile_image: "https://example.com/avatar.png",
+                phone: "11987654321",
+                cep: "01001000",
+                address: "Rua Exemplo, 123",
+            });
+
+            expect(response.status).toBe(201);
+            expect(userUseCase.createUser).toHaveBeenCalledTimes(1);
+        });
+
+        it("deve retornar 400 quando o telefone informado for inválido", async () => {
+            const response = await request(app).post("/users").send({
+                name: "Pedro",
+                email: "test@gmail.com",
+                cpf: "95975315000",
+                password: "password123!",
+                phone: "abc123",
+            });
+
+            expect(response.status).toBe(400);
+            expect(userUseCase.createUser).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar 400 quando o CEP informado for inválido", async () => {
+            const response = await request(app).post("/users").send({
+                name: "Pedro",
+                email: "test@gmail.com",
+                cpf: "95975315000",
+                password: "password123!",
+                cep: "123",
+            });
+
+            expect(response.status).toBe(400);
+            expect(userUseCase.createUser).not.toHaveBeenCalled();
+        });
     });
 
     describe("GET /users/:id", () => {
@@ -126,6 +170,32 @@ describe("user.routes", () => {
                 .patch(`/users/${VALID_ID}`)
                 .set(authHeader)
                 .send({ email: "nao-e-email" });
+
+            expect(response.status).toBe(400);
+            expect(userUseCase.update).not.toHaveBeenCalled();
+        });
+
+        it("deve atualizar profile_image, phone, cep e address", async () => {
+            userUseCase.update.mockResolvedValue({ id: VALID_ID, phone: "11987654321" });
+
+            const response = await request(app)
+                .patch(`/users/${VALID_ID}`)
+                .set(authHeader)
+                .send({
+                    profile_image: "https://example.com/avatar.png",
+                    phone: "11987654321",
+                    cep: "01001000",
+                    address: "Rua Exemplo, 123",
+                });
+
+            expect(response.status).toBe(200);
+        });
+
+        it("deve retornar 400 quando o CEP informado for inválido", async () => {
+            const response = await request(app)
+                .patch(`/users/${VALID_ID}`)
+                .set(authHeader)
+                .send({ cep: "abc" });
 
             expect(response.status).toBe(400);
             expect(userUseCase.update).not.toHaveBeenCalled();

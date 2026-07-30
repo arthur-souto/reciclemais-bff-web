@@ -1,6 +1,6 @@
 import { Delivery, DeliveryStatus } from "../../../domain/models/delivery";
 import DeliveryRepositoryPort from "../../../domain/ports/repository/DeliveryRepositoryPort";
-import { db } from "../../../infrastructure/database/client";
+import { db, DbClient } from "../../../infrastructure/database/client";
 import { deliveryTable, DeliveryRow } from "../../../infrastructure/database/schema/delivery.schema";
 import { count, desc, eq } from "drizzle-orm";
 import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
@@ -85,13 +85,16 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
         };
     }
 
-    async update(delivery: Delivery): Promise<Delivery> {
-        const [row] = await db.update(deliveryTable)
+    async update(delivery: Delivery, tx?: unknown): Promise<Delivery> {
+        const executor = (tx as DbClient) ?? db;
+
+        const [row] = await executor.update(deliveryTable)
             .set({
                 local: delivery.getLocal(),
                 material_type: delivery.getMaterial_type(),
                 status: delivery.getStatus(),
                 quantity: delivery.getQuantity(),
+                total_score: delivery.getTotal_score(),
                 evidence_url: delivery.getEvidence_url(),
                 fk_user: delivery.getFk_user(),
                 fk_material: delivery.getFk_material(),

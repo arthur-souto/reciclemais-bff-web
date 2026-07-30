@@ -29,6 +29,7 @@ import DeliveryUseCase from "./application/DeliveryUseCase";
 import DrizzleDeliveryRepository from "./adapters/out/repositories/DrizzleDeliveryRepository";
 import DeliveryRepositoryPort from "./domain/ports/repository/DeliveryRepositoryPort";
 import DeliveryController from "./adapters/in/http/controller/DeliveryController";
+import DrizzleTransactionManager from "./adapters/out/database/DrizzleTransactionManager";
 
 const logger: Logger = new PinoLogger();
 const passwordHasher = new Argon2PasswordHasher();
@@ -47,8 +48,10 @@ const materialRepository: MaterialRepositoryPort = new DrizzleMaterialRepository
 const prizeRepository: PrizeRepositoryPort = new DrizzlePrizeRepository()
 const deliveryRepository: DeliveryRepositoryPort = new DrizzleDeliveryRepository()
 
+const transactionManager = new DrizzleTransactionManager();
+
 //use cases
-const evidenceUseCases = new EvidenceUseCases(groqService, deliveryRepository, logger);
+const evidenceUseCases = new EvidenceUseCases(groqService, deliveryRepository, userRepository, transactionManager, logger);
 const userUseCases = new UserUseCase(userRepository, passwordHasher)
 const authUseCases = new AuthUseCases(userRepository, passwordHasher, tokenService)
 const materialUseCases = new MaterialUseCase(materialRepository)

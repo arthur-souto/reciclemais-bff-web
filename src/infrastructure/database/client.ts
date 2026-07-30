@@ -7,3 +7,5 @@ export const poll = new Pool({
 
 export const db = drizzle({client: poll, logger: true});
 
+export type DbClient = typeof db;
+

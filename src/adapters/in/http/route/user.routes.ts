@@ -44,6 +44,20 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
    *                 minLength: 8
    *                 format: password
    *                 description: Senha do usuário
+   *               profile_image:
+   *                 type: string
+   *                 format: uri
+   *                 description: URL da imagem de perfil
+   *               phone:
+   *                 type: string
+   *                 description: Telefone (DDD + número, apenas dígitos)
+   *               cep:
+   *                 type: string
+   *                 description: CEP (apenas dígitos)
+   *               address:
+   *                 type: string
+   *                 maxLength: 255
+   *                 description: Endereço do usuário
    *     responses:
    *       201:
    *         description: Usuario criado com sucesso
@@ -151,6 +165,16 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
    *                 format: email
    *               cpf:
    *                 type: string
+   *               profile_image:
+   *                 type: string
+   *                 format: uri
+   *               phone:
+   *                 type: string
+   *               cep:
+   *                 type: string
+   *               address:
+   *                 type: string
+   *                 maxLength: 255
    *     responses:
    *       200:
    *         description: Usuario atualizado com sucesso
