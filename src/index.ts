@@ -30,6 +30,10 @@ import DrizzleDeliveryRepository from "./adapters/out/repositories/DrizzleDelive
 import DeliveryRepositoryPort from "./domain/ports/repository/DeliveryRepositoryPort";
 import DeliveryController from "./adapters/in/http/controller/DeliveryController";
 import DrizzleTransactionManager from "./adapters/out/database/DrizzleTransactionManager";
+import { UploadImageUseCase } from "./application/UploadImageUseCase";
+import UploadController from "./adapters/in/http/controller/UploadController";
+import { R2StorageAdapter } from "./infrastructure/adapters/storage/R2StorageAdpater";
+import ScoreService from "./application/service/ScoreService";
 
 const logger: Logger = new PinoLogger();
 const passwordHasher = new Argon2PasswordHasher();
@@ -50,13 +54,22 @@ const deliveryRepository: DeliveryRepositoryPort = new DrizzleDeliveryRepository
 
 const transactionManager = new DrizzleTransactionManager();
 
+//service
+
+
+//storage adapter
+const storageAdapter = new R2StorageAdapter();
+
+const saveScoreService = new ScoreService(deliveryRepository, userRepository, transactionManager, storageAdapter, logger);
+
 //use cases
-const evidenceUseCases = new EvidenceUseCases(groqService, deliveryRepository, userRepository, transactionManager, logger);
+const evidenceUseCases = new EvidenceUseCases(groqService, saveScoreService, logger);
 const userUseCases = new UserUseCase(userRepository, passwordHasher)
 const authUseCases = new AuthUseCases(userRepository, passwordHasher, tokenService)
 const materialUseCases = new MaterialUseCase(materialRepository)
 const prizeUseCases = new PrizeUseCase(prizeRepository)
 const deliveryUseCases = new DeliveryUseCase(deliveryRepository, materialRepository)
+const uploadImageUseCase = new UploadImageUseCase(storageAdapter)
 
 // controllers
 const evidenceController = new EvidenceController(evidenceUseCases, logger);
@@ -65,6 +78,7 @@ const authController = new AuthController(authUseCases, logger);
 const materialController = new MaterialController(materialUseCases, logger);
 const prizeController = new PrizeController(prizeUseCases, logger);
 const deliveryController = new DeliveryController(deliveryUseCases, logger);
+const uploadController = new UploadController(uploadImageUseCase, logger);
 
 // application
 const app: ApplicationRunnable = new ExpressServerAdapter(
@@ -75,6 +89,7 @@ const app: ApplicationRunnable = new ExpressServerAdapter(
     materialController,
     prizeController,
     deliveryController,
+    uploadController,
     tokenService
 );
 
@@ -85,7 +100,8 @@ app.run(Number(process.env.PORT)).then(() => {
         port: 3000,
         environment: process.env.NODE_ENV || "development",
     });
-}).catch(() => {
+}).catch((e) => {
+    logger.error(e)
     process.exit(1);
 });
 

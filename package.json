@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/arthur-souto/reciclemais-bff-web#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1099.0",
     "@types/bcrypt": "^6.0.0",
     "argon2": "^0.45.1",
     "bcrypt": "^6.0.0",

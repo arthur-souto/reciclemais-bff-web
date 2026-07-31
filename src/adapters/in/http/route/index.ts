@@ -5,12 +5,14 @@ import AuthController from "../controller/AuthController";
 import MaterialController from "../controller/MaterialController";
 import PrizeController from "../controller/PrizeController";
 import DeliveryController from "../controller/DeliveryController";
+import UploadController from "../controller/UploadController";
 import { evidenceRoutes } from "./evidence.routes";
 import { userRoutes } from "./user.routes";
 import { authRoutes } from "./auth.routes";
 import { materialRoutes } from "./material.routes";
 import { prizeRoutes } from "./prize.routes";
 import { deliveryRoutes } from "./delivery.routes";
+import { uploadRoutes } from "./upload.routes";
 import { TokenServicePort } from "../../../../domain/TokenServicePort";
 
 interface Controllers {
@@ -20,6 +22,7 @@ interface Controllers {
   materialController: MaterialController;
   prizeController: PrizeController;
   deliveryController: DeliveryController;
+  uploadController: UploadController;
 }
 
 export function registerRoutes(app: Application, controllers: Controllers, tokens: TokenServicePort) {
@@ -29,4 +32,5 @@ export function registerRoutes(app: Application, controllers: Controllers, token
   app.use(materialRoutes(controllers.materialController, tokens));
   app.use(prizeRoutes(controllers.prizeController, tokens));
   app.use(deliveryRoutes(controllers.deliveryController, tokens));
+  app.use(uploadRoutes(controllers.uploadController, tokens));
 }
