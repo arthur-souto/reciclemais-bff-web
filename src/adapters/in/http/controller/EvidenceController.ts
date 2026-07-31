@@ -17,12 +17,17 @@ export default class EvidenceController {
             
             this.log.info("Iniciando análise de evidência");
 
-            let imageUrl = await this.BufferImageGenerator.convertToBase64AndReturnUrl(req.file.buffer, req.file.mimetype);
-
-            let analysisResult = await this.evidenceUseCases.initAnalyze({
+            const imageUrl = await this.BufferImageGenerator.convertToBase64AndReturnUrl(req.file.buffer, req.file.mimetype);
+            
+            const analysisResult = await this.evidenceUseCases.initAnalyze({
                 deliveryId: Number(req.params.id),
                 imageUrl,
-                userId: req.user!.sub
+                userId: req.user!.sub,
+                uploadInput: {
+                    buffer: req.file.buffer,
+                    mimeType: req.file.mimetype,
+                    originalmage: req.file.originalname
+                }
             });
 
             this.log.info("Análise de evidência concluída", { analysisResult });

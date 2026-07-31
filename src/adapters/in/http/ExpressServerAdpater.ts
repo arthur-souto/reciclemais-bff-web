@@ -16,6 +16,7 @@ import AuthController from "./controller/AuthController";
 import MaterialController from "./controller/MaterialController";
 import PrizeController from "./controller/PrizeController";
 import DeliveryController from "./controller/DeliveryController";
+import UploadController from "./controller/UploadController";
 import { errorHandler } from "./middleware/errorHandler";
 import { TokenServicePort } from "../../../domain/TokenServicePort";
 
@@ -39,6 +40,7 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
         private materialController: MaterialController,
         private prizeController: PrizeController,
         private deliveryController: DeliveryController,
+        private uploadController: UploadController,
         private tokens: TokenServicePort
     ) {
         this.app.use(express.json());
@@ -58,7 +60,8 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
                 authController: this.authController,
                 materialController: this.materialController,
                 prizeController: this.prizeController,
-                deliveryController: this.deliveryController
+                deliveryController: this.deliveryController,
+                uploadController: this.uploadController
             },
             this.tokens
         )
