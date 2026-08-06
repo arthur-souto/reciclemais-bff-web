@@ -1,22 +1,45 @@
+export enum PrizeStatus {
+    ACTIVE = "ACTIVE",
+    INACTIVE = "INACTIVE",
+}
+
 export class Prize {
     id: null | number = null;
     name: string;
     required_points: number;
+    image_url: string | null;
     description: string;
-    fk_user: string | null;
+    status: PrizeStatus;
+    category: string | null;
+    expiration_date: Date | null;
+    created_at: Date;
+    updated_at: Date;
+    fk_created_by: string | null;
 
     constructor(
         id: null | number = null,
         name: string,
         required_points: number,
+        image_url: string | null,
         description: string,
-        fk_user: string | null = null
+        status: PrizeStatus,
+        category: string | null,
+        expiration_date: Date | null,
+        created_at: Date,
+        updated_at: Date,
+        fk_created_by: string | null = null
     ) {
         this.id = id;
         this.name = name;
         this.required_points = required_points;
+        this.image_url = image_url;
         this.description = description;
-        this.fk_user = fk_user;
+        this.status = status;
+        this.category = category;
+        this.expiration_date = expiration_date;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
+        this.fk_created_by = fk_created_by;
     }
 
     getId(): number | null {
@@ -43,6 +66,14 @@ export class Prize {
         this.required_points = required_points;
     }
 
+    getImage_url(): string | null {
+        return this.image_url;
+    }
+
+    setImage_url(image_url: string | null): void {
+        this.image_url = image_url;
+    }
+
     getDescription(): string {
         return this.description;
     }
@@ -51,11 +82,51 @@ export class Prize {
         this.description = description;
     }
 
-    getFk_user(): string | null {
-        return this.fk_user;
+    getStatus(): PrizeStatus {
+        return this.status;
     }
 
-    setFk_user(fk_user: string | null): void {
-        this.fk_user = fk_user;
+    setStatus(status: PrizeStatus): void {
+        this.status = status;
+    }
+
+    getCategory(): string | null {
+        return this.category;
+    }
+
+    setCategory(category: string | null): void {
+        this.category = category;
+    }
+
+    getExpiration_date(): Date | null {
+        return this.expiration_date;
+    }
+
+    setExpiration_date(expiration_date: Date | null): void {
+        this.expiration_date = expiration_date;
+    }
+
+    getCreated_at(): Date {
+        return this.created_at;
+    }
+
+    setCreated_at(created_at: Date): void {
+        this.created_at = created_at;
+    }
+
+    getUpdated_at(): Date {
+        return this.updated_at;
+    }
+
+    setUpdated_at(updated_at: Date): void {
+        this.updated_at = updated_at;
+    }
+
+    getFk_created_by(): string | null {
+        return this.fk_created_by;
+    }
+
+    setFk_created_by(fk_created_by: string | null): void {
+        this.fk_created_by = fk_created_by;
     }
 }

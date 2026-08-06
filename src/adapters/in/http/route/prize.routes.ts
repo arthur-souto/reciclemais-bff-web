@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate";
 import { authMiddleware } from "../middleware/auth";
+import { requireRole } from "../middleware/requireRole";
 import { CreatePrizeDto } from "../../../request/CreatePrizeDTO";
 import { UpdatePrizeDto } from "../../../request/UpdatePrizeDTO";
 import PrizeController from "../controller/PrizeController";
@@ -28,6 +29,7 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *               - name
    *               - required_points
    *               - description
+   *               - category
    *             properties:
    *               name:
    *                 type: string
@@ -39,6 +41,16 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *               description:
    *                 type: string
    *                 description: Descrição do prêmio
+   *               category:
+   *                 type: string
+   *                 description: Categoria do prêmio
+   *               image_url:
+   *                 type: string
+   *                 description: URL da imagem do prêmio
+   *               expiration_date:
+   *                 type: string
+   *                 format: date-time
+   *                 description: Data de expiração do prêmio
    *     responses:
    *       201:
    *         description: Prêmio criado com sucesso
@@ -46,6 +58,8 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *         description: Dados inválidos
    *       401:
    *         description: Não autenticado
+   *       403:
+   *         description: Acesso negado (requer ADMIN ou ASSOCIATE)
    *   get:
    *     summary: Lista todos os prêmios
    *     tags:
@@ -75,6 +89,7 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
     "/prizes",
     authMiddleware(tokens),
     validate(CreatePrizeDto),
+    requireRole(["ADMIN", "ASSOCIATE"]),
     prizeController.create,
   );
 
@@ -134,6 +149,16 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *                 type: integer
    *               description:
    *                 type: string
+   *               category:
+   *                 type: string
+   *               image_url:
+   *                 type: string
+   *               expiration_date:
+   *                 type: string
+   *                 format: date-time
+   *               status:
+   *                 type: string
+   *                 enum: [ACTIVE, INACTIVE]
    *     responses:
    *       200:
    *         description: Prêmio atualizado com sucesso
@@ -141,6 +166,8 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *         description: Dados inválidos
    *       401:
    *         description: Não autenticado
+   *       403:
+   *         description: Acesso negado (requer ADMIN ou ASSOCIATE)
    *       404:
    *         description: Prêmio não encontrado
    *   delete:
@@ -161,6 +188,8 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
    *         description: Prêmio removido com sucesso
    *       401:
    *         description: Não autenticado
+   *       403:
+   *         description: Acesso negado (requer ADMIN ou ASSOCIATE)
    *       404:
    *         description: Prêmio não encontrado
    */
@@ -174,13 +203,120 @@ export function prizeRoutes(prizeController: PrizeController, tokens: TokenServi
     "/prizes/:id",
     authMiddleware(tokens),
     validate(UpdatePrizeDto),
+    requireRole(["ADMIN", "ASSOCIATE"]),
     prizeController.update,
   );
 
   router.delete(
     "/prizes/:id",
     authMiddleware(tokens),
+    requireRole(["ADMIN", "ASSOCIATE"]),
     prizeController.delete,
+  );
+
+  /**
+   * @openapi
+   * /prizes/redemptions/me:
+   *   get:
+   *     summary: Lista os resgates de prêmios do usuário autenticado
+   *     tags:
+   *       - Prizes
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *     responses:
+   *       200:
+   *         description: Lista paginada de resgates do usuário
+   *       401:
+   *         description: Não autenticado
+   */
+  router.get(
+    "/prizes/redemptions/me",
+    authMiddleware(tokens),
+    prizeController.listMyRedemptions,
+  );
+
+  /**
+   * @openapi
+   * /prizes/{id}/redeem:
+   *   post:
+   *     summary: Resgata um prêmio, debitando os pontos do usuário
+   *     tags:
+   *       - Prizes
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: ID do prêmio
+   *     responses:
+   *       201:
+   *         description: Prêmio resgatado com sucesso
+   *       400:
+   *         description: Prêmio indisponível, expirado ou pontos insuficientes
+   *       401:
+   *         description: Não autenticado
+   *       404:
+   *         description: Prêmio ou usuário não encontrado
+   */
+  router.post(
+    "/prizes/:id/redeem",
+    authMiddleware(tokens),
+    prizeController.redeem,
+  );
+
+  /**
+   * @openapi
+   * /prizes/{id}/redemptions:
+   *   get:
+   *     summary: Lista os usuários que resgataram um prêmio
+   *     tags:
+   *       - Prizes
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: ID do prêmio
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *     responses:
+   *       200:
+   *         description: Lista paginada de resgates do prêmio
+   *       401:
+   *         description: Não autenticado
+   *       403:
+   *         description: Acesso negado (requer ADMIN ou ASSOCIATE)
+   */
+  router.get(
+    "/prizes/:id/redemptions",
+    authMiddleware(tokens),
+    requireRole(["ADMIN", "ASSOCIATE"]),
+    prizeController.listRedemptions,
   );
 
   return router;

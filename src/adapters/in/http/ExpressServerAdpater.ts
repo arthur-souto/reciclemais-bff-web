@@ -73,7 +73,7 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
 
     public async run(port: number): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.server = this.app.listen(port, () => {
+            this.server = this.app.listen(port, "0.0.0.0", () => {
                 this.log.info(`Server running on port ${port}`);
                 resolve();
             });

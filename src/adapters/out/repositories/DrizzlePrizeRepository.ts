@@ -1,4 +1,4 @@
-import { Prize } from "../../../domain/models/prize";
+import { Prize, PrizeStatus } from "../../../domain/models/prize";
 import PrizeRepositoryPort from "../../../domain/ports/repository/PrizeRepositoryPort";
 import { db } from "../../../infrastructure/database/client";
 import { prizeTable, PrizeRow } from "../../../infrastructure/database/schema/prize.schema";
@@ -11,8 +11,14 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
         const [row] = await db.insert(prizeTable).values({
             name: prize.getName(),
             required_points: prize.getRequired_points(),
+            image_url: prize.getImage_url(),
             description: prize.getDescription(),
-            fk_user: prize.getFk_user(),
+            status: prize.getStatus(),
+            category: prize.getCategory(),
+            expiration_date: prize.getExpiration_date(),
+            created_at: prize.getCreated_at(),
+            updated_at: prize.getUpdated_at(),
+            fk_created_by: prize.getFk_created_by(),
         }).returning();
 
         return this.toDomain(row as PrizeRow);
@@ -47,8 +53,13 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
             .set({
                 name: prize.getName(),
                 required_points: prize.getRequired_points(),
+                image_url: prize.getImage_url(),
                 description: prize.getDescription(),
-                fk_user: prize.getFk_user(),
+                status: prize.getStatus(),
+                category: prize.getCategory(),
+                expiration_date: prize.getExpiration_date(),
+                updated_at: new Date(),
+                fk_created_by: prize.getFk_created_by(),
             })
             .where(eq(prizeTable.id, prize.getId()!))
             .returning();
@@ -61,6 +72,18 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
     }
 
     private toDomain(row: PrizeRow): Prize {
-        return new Prize(row.id, row.name, row.required_points, row.description, row.fk_user);
+        return new Prize(
+            row.id,
+            row.name,
+            row.required_points,
+            row.image_url,
+            row.description,
+            row.status as PrizeStatus,
+            row.category,
+            row.expiration_date,
+            row.created_at ?? new Date(0),
+            row.updated_at ?? new Date(0),
+            row.fk_created_by
+        );
     }
 }

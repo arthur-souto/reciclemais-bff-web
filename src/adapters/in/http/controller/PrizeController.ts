@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import PrizeUseCase from "../../../../application/PrizeUseCase";
+import PrizeRedemptionUseCase from "../../../../application/PrizeRedemptionUseCase";
 import Logger from "../../../../domain/ports/LoggerPort";
 import { CreatePrizeDto } from "../../../request/CreatePrizeDTO";
 import { UpdatePrizeDto } from "../../../request/UpdatePrizeDTO";
@@ -7,7 +8,11 @@ import { parsePagination, paginatedPayload } from "../utils/pagination";
 
 export default class PrizeController {
 
-    public constructor(private prizeUseCase: PrizeUseCase, private log: Logger) {}
+    public constructor(
+        private prizeUseCase: PrizeUseCase,
+        private prizeRedemptionUseCase: PrizeRedemptionUseCase,
+        private log: Logger
+    ) {}
 
     public create = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -60,6 +65,38 @@ export default class PrizeController {
             const { id } = req.params as { id: string };
             await this.prizeUseCase.delete(id);
             res.status(200).json({ description: "Prêmio removido com sucesso" });
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+
+    public redeem = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params as { id: string };
+            const response = await this.prizeRedemptionUseCase.redeem(id, req.user!.sub);
+            res.status(201).json({ description: "Prêmio resgatado com sucesso", data: response });
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+
+    public listMyRedemptions = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.prizeRedemptionUseCase.listByUser(req.user!.sub, parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+
+    public listRedemptions = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params as { id: string };
+            const result = await this.prizeRedemptionUseCase.listByPrize(id, parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);

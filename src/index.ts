@@ -25,6 +25,9 @@ import PrizeUseCase from "./application/PrizeUseCase";
 import DrizzlePrizeRepository from "./adapters/out/repositories/DrizzlePrizeRepository";
 import PrizeRepositoryPort from "./domain/ports/repository/PrizeRepositoryPort";
 import PrizeController from "./adapters/in/http/controller/PrizeController";
+import PrizeRedemptionUseCase from "./application/PrizeRedemptionUseCase";
+import DrizzlePrizeRedemptionRepository from "./adapters/out/repositories/DrizzlePrizeRedemptionRepository";
+import PrizeRedemptionRepositoryPort from "./domain/ports/repository/PrizeRedemptionRepositoryPort";
 import DeliveryUseCase from "./application/DeliveryUseCase";
 import DrizzleDeliveryRepository from "./adapters/out/repositories/DrizzleDeliveryRepository";
 import DeliveryRepositoryPort from "./domain/ports/repository/DeliveryRepositoryPort";
@@ -50,6 +53,7 @@ const groqService = new GroqServiceAdpater(
 const userRepository: UserRepositoryPort = new DrizzleUserRepository()
 const materialRepository: MaterialRepositoryPort = new DrizzleMaterialRepository()
 const prizeRepository: PrizeRepositoryPort = new DrizzlePrizeRepository()
+const prizeRedemptionRepository: PrizeRedemptionRepositoryPort = new DrizzlePrizeRedemptionRepository()
 const deliveryRepository: DeliveryRepositoryPort = new DrizzleDeliveryRepository()
 
 const transactionManager = new DrizzleTransactionManager();
@@ -68,6 +72,7 @@ const userUseCases = new UserUseCase(userRepository, passwordHasher)
 const authUseCases = new AuthUseCases(userRepository, passwordHasher, tokenService)
 const materialUseCases = new MaterialUseCase(materialRepository)
 const prizeUseCases = new PrizeUseCase(prizeRepository)
+const prizeRedemptionUseCases = new PrizeRedemptionUseCase(prizeRepository, userRepository, prizeRedemptionRepository, transactionManager)
 const deliveryUseCases = new DeliveryUseCase(deliveryRepository, materialRepository)
 const uploadImageUseCase = new UploadImageUseCase(storageAdapter)
 
@@ -76,7 +81,7 @@ const evidenceController = new EvidenceController(evidenceUseCases, logger);
 const userController = new UserController(userUseCases, logger);
 const authController = new AuthController(authUseCases, logger);
 const materialController = new MaterialController(materialUseCases, logger);
-const prizeController = new PrizeController(prizeUseCases, logger);
+const prizeController = new PrizeController(prizeUseCases, prizeRedemptionUseCases, logger);
 const deliveryController = new DeliveryController(deliveryUseCases, logger);
 const uploadController = new UploadController(uploadImageUseCase, logger);
 

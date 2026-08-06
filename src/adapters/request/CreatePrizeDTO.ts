@@ -1,4 +1,5 @@
-import { IsInt, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { IsDate, IsInt, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreatePrizeDto {
   @IsString()
@@ -13,4 +14,18 @@ export class CreatePrizeDto {
   @IsString()
   @MinLength(1, { message: "Descrição é obrigatória" })
   description!: string;
+
+  @IsString()
+  @MinLength(1, { message: "Categoria é obrigatória" })
+  @MaxLength(100)
+  category!: string;
+
+  @IsOptional()
+  @IsUrl({}, { message: "URL da imagem inválida" })
+  image_url?: string;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate({ message: "Data de expiração inválida" })
+  expiration_date?: Date;
 }
