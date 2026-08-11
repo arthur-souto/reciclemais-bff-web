@@ -14,7 +14,7 @@ export default class DeliveryUseCase {
     ) {}
 
     public async create(dto: CreateDeliveryDto, fk_user: string) {
-        await this.ensureMaterialExists(dto.fk_material);
+        await this.ensureMaterialExists(dto.fk_material, dto.material_type);
 
         return toDeliveryResponse(await this.repository.save(fromDeliveryCreateRequest(dto, fk_user)));
     }
@@ -34,12 +34,13 @@ export default class DeliveryUseCase {
 
     public async update(id: string, dto: UpdateDeliveryDto) {
         const delivery = await this.repository.findById(this.parseId(id));
+        
         if (!delivery) {
             throw new AppError("Entrega não encontrada", 404);
         }
 
-        if (dto.fk_material !== undefined) {
-            await this.ensureMaterialExists(dto.fk_material);
+        if (dto.fk_material !== undefined && dto.material_type !== undefined) {
+            await this.ensureMaterialExists(dto.fk_material, dto.material_type);
         }
 
         applyDeliveryUpdateRequest(delivery, dto);
@@ -56,9 +57,9 @@ export default class DeliveryUseCase {
         await this.repository.delete(numericId);
     }
 
-    private async ensureMaterialExists(fk_material: number): Promise<void> {
+    private async ensureMaterialExists(fk_material: number, material_type: string): Promise<void> {
         const material = await this.materialRepository.findById(fk_material);
-        if (!material) {
+        if (!material || material.getName() !== material_type) {
             throw new AppError("Material não encontrado", 404);
         }
     }

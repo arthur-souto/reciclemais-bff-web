@@ -27,7 +27,7 @@ export default class GroqServiceAdpater implements AiCompletionService {
 
     try {
       const response = await this.client.chat.completions.create({
-        model: this.visionModel, 
+        model: this.visionModel,
         messages: [
           {
             role: "user",
@@ -52,7 +52,19 @@ export default class GroqServiceAdpater implements AiCompletionService {
       });
       return content;
     } catch (err) {
-      this.log.error("Erro ao analisar imagem via Groq", { err });
+
+      if (err instanceof Groq.APIError) {
+        this.log.error("Erro ao analisar imagem via Groq", {
+          message: err.message,
+          status: err.status,
+          code: (err as any).code,
+        });
+      } else {
+        this.log.error("Erro ao analisar imagem via Groq", {
+          message: (err as Error)?.message,
+          stack: (err as Error)?.stack,
+        });
+      }
       throw new Error("Falha ao analisar imagem");
     }
   }

@@ -8,8 +8,6 @@ import multer from "multer";
 import EvidenceController from "./controller/EvidenceController";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../../../infrastructure/config/Swagger";
-import { validate } from "./middleware/validate";
-import { CreateUserDto } from "../../request/CreateUserDTO";
 import { registerRoutes } from "./route";
 import UserController from "./controller/UserController";
 import AuthController from "./controller/AuthController";
@@ -23,11 +21,6 @@ import { TokenServicePort } from "../../../domain/TokenServicePort";
 export default class ExpressServerAdapter implements ApplicationRunnable {
 
     private readonly app: Application = express();
-    private readonly upload = multer({
-        storage: multer.memoryStorage(),
-        limits: { fileSize: 20 * 1024 * 1024 }
-    })
-
     private server: Server | null = null;
 
     // configuração do express
