@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
-import { userRoutes } from "../../route/user.routes";
-import UserController from "../../controller/UserController";
-import AppError from "../../../../../domain/errors/AppError";
+import { userRoutes } from "../../adapters/in/http/route/user.routes";
+import UserController from "../../adapters/in/http/controller/UserController";
+import AppError from "../../domain/errors/AppError";
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
 import { createFakeTokenService, VALID_TOKEN } from "../helpers/fakeTokenService";

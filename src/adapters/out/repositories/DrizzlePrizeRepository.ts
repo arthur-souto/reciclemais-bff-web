@@ -1,19 +1,41 @@
-import { Prize, PrizeStatus } from "../../../domain/models/prize";
+import { Prize, PrizeStatus, PrizeType } from "../../../domain/models/prize";
 import PrizeRepositoryPort from "../../../domain/ports/repository/PrizeRepositoryPort";
-import { db } from "../../../infrastructure/database/client";
+import { db, DbClient } from "../../../infrastructure/database/client";
 import { prizeTable, PrizeRow } from "../../../infrastructure/database/schema/prize.schema";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, gte, sql } from "drizzle-orm";
 import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 
 export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
+
+    private readonly DEFAULT_LIMIT_DECREMENT_QUANTITY: number = 1;
+
+    async decrementQuantity(prizeId: number, tx?: unknown): Promise<boolean> {
+        const executor = (tx as DbClient) ?? db;
+
+        const [row] = await executor.update(prizeTable)
+        .set({
+            quantity: sql`${prizeTable.quantity} - ${this.DEFAULT_LIMIT_DECREMENT_QUANTITY}`
+        })
+        .where(
+            and(
+                eq(prizeTable.id, prizeId),
+                gte(prizeTable.quantity, this.DEFAULT_LIMIT_DECREMENT_QUANTITY)
+            )
+        )
+        .returning();
+        
+        return !!row;
+    }
 
     async save(prize: Prize): Promise<Prize> {
         const [row] = await db.insert(prizeTable).values({
             name: prize.getName(),
             required_points: prize.getRequired_points(),
+            quantity: prize.getQuantity(),
             image_url: prize.getImage_url(),
             description: prize.getDescription(),
             status: prize.getStatus(),
+            type: prize.getType(),
             category: prize.getCategory(),
             expiration_date: prize.getExpiration_date(),
             created_at: prize.getCreated_at(),
@@ -53,9 +75,11 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
             .set({
                 name: prize.getName(),
                 required_points: prize.getRequired_points(),
+                quantity: prize.getQuantity(),
                 image_url: prize.getImage_url(),
                 description: prize.getDescription(),
                 status: prize.getStatus(),
+                type: prize.getType(),
                 category: prize.getCategory(),
                 expiration_date: prize.getExpiration_date(),
                 updated_at: new Date(),
@@ -76,9 +100,11 @@ export default class DrizzlePrizeRepository implements PrizeRepositoryPort {
             row.id,
             row.name,
             row.required_points,
+            row.quantity,
             row.image_url,
             row.description,
             row.status as PrizeStatus,
+            row.type as PrizeType,
             row.category,
             row.expiration_date,
             row.created_at ?? new Date(0),

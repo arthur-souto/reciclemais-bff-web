@@ -1,6 +1,6 @@
 import { IsDate, IsEnum, IsInt, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
 import { Type } from "class-transformer";
-import { PrizeStatus } from "../../domain/models/prize";
+import { PrizeStatus, PrizeType } from "../../domain/models/prize";
 
 export class UpdatePrizeDto {
   @IsOptional()
@@ -13,6 +13,11 @@ export class UpdatePrizeDto {
   @IsInt({ message: "Pontos necessários deve ser um número inteiro" })
   @Min(1)
   required_points?: number;
+
+  @IsOptional()
+  @IsInt({ message: "Quantidade deve ser um número inteiro" })
+  @Min(0)
+  quantity?: number;
 
   @IsOptional()
   @IsString()
@@ -37,4 +42,8 @@ export class UpdatePrizeDto {
   @IsOptional()
   @IsEnum(PrizeStatus, { message: "Status inválido" })
   status?: PrizeStatus;
+
+  @IsOptional()
+  @IsEnum(PrizeType, { message: "Tipo inválido" })
+  type?: PrizeType;
 }

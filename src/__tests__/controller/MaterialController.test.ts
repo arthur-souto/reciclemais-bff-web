@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { Request, Response } from "express";
-import MaterialController from "../../controller/MaterialController";
-import AppError from "../../../../../domain/errors/AppError";
+import MaterialController from "../../adapters/in/http/controller/MaterialController";
+import AppError from "../../domain/errors/AppError";
 import { createFakeLogger } from "../helpers/fakeLogger";
 
 const FK_USER = "3fa85f64-5717-4562-b3fc-2c963f66afa6";

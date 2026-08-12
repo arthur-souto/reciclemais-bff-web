@@ -1,7 +1,7 @@
 import express, { Application, Router } from "express";
-import Logger from "../../../../../domain/ports/LoggerPort";
+import Logger from "../../domain/ports/LoggerPort";
 import { createFakeLogger } from "./fakeLogger";
-import { errorHandler } from "../../middleware/errorHandler";
+import { errorHandler } from "../../adapters/in/http/middleware/errorHandler";
 
 export function buildTestApp(routers: Router | Router[], logger: Logger = createFakeLogger()): Application {
     const app = express();

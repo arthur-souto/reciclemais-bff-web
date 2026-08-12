@@ -1,13 +1,13 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
-import { deliveryRoutes } from "../../route/delivery.routes";
-import DeliveryController from "../../controller/DeliveryController";
-import AppError from "../../../../../domain/errors/AppError";
+import { deliveryRoutes } from "../../adapters/in/http/route/delivery.routes";
+import DeliveryController from "../../adapters/in/http/controller/DeliveryController";
+import AppError from "../../domain/errors/AppError";
 
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
 import { createFakeTokenService, VALID_TOKEN, DEFAULT_PAYLOAD } from "../helpers/fakeTokenService";
-import { DeliveryStatus } from "../../../../../domain/models/delivery";
+import { DeliveryStatus } from "../../domain/models/delivery";
 
 const authHeader = { Authorization: `Bearer ${VALID_TOKEN}` };
 

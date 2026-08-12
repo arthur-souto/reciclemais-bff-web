@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { Request, Response } from "express";
-import EvidenceController from "../../controller/EvidenceController";
-import AppError from "../../../../../domain/errors/AppError";
+import EvidenceController from "../../adapters/in/http/controller/EvidenceController";
+import AppError from "../../domain/errors/AppError";
 import { createFakeLogger } from "../helpers/fakeLogger";
 
 // PNG 1x1 pixel válido (o controller processa a imagem com `sharp` via GenerateBufferByImage)

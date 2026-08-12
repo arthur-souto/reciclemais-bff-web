@@ -2,14 +2,17 @@ import { pgTable, integer, varchar, text, serial, uuid, timestamp, pgEnum } from
 import { usersTable } from "./user.schema";
 
 export const prizeStatus = pgEnum("prize_status", ["ACTIVE", "INACTIVE"]);
+export const prizeType = pgEnum("prize_type", ["PHYSICAL", "DIGITAL", "DISCOUNT"]);
 
 export const prizeTable = pgTable("prizes", {
     id: serial("id").primaryKey(),
     name: varchar({ length: 255 }).notNull(),
     required_points: integer().notNull(),
+    quantity: integer("quantity"),
     image_url: varchar("image_url", { length: 2048 }),
     description: text().notNull(),
     status: prizeStatus("status").default("ACTIVE").notNull(),
+    type: prizeType("type").default("PHYSICAL").notNull(),
     category: varchar({ length: 100 }),
     expiration_date: timestamp("expiration_date", { mode: "date" }),
     created_at: timestamp("created_at", { mode: "date" }).defaultNow(),

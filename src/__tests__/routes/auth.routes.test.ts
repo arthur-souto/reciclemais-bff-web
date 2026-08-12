@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { buildTestApp } from "../helpers/testApp";
-import AuthController from "../../controller/AuthController";
+import AuthController from "../../adapters/in/http/controller/AuthController";
 import { createFakeLogger } from "../helpers/fakeLogger";
-import AppError from "../../../../../domain/errors/AppError";
-import { authRoutes } from "../../route/auth.routes";
+import AppError from "../../domain/errors/AppError";
+import { authRoutes } from "../../adapters/in/http/route/auth.routes";
 
 
 describe("POST /auth/login", () => {

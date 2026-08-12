@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { Request, Response } from "express";
-import UserController from "../../controller/UserController";
-import AppError from "../../../../../domain/errors/AppError";
+import UserController from "../../adapters/in/http/controller/UserController";
+import AppError from "../../domain/errors/AppError";
 import { createFakeLogger } from "../helpers/fakeLogger";
 
 function buildRes() {

@@ -1,5 +1,6 @@
-import { IsDate, IsInt, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
+import { IsDate, IsEnum, IsInt, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
 import { Type } from "class-transformer";
+import { PrizeType } from "../../domain/models/prize";
 
 export class CreatePrizeDto {
   @IsString()
@@ -11,9 +12,17 @@ export class CreatePrizeDto {
   @Min(1)
   required_points!: number;
 
+  @IsOptional()
+  @IsInt({ message: "Quantidade deve ser um número inteiro" })
+  @Min(0)
+  quantity?: number;
+
   @IsString()
   @MinLength(1, { message: "Descrição é obrigatória" })
   description!: string;
+
+  @IsEnum(PrizeType, { message: "Tipo inválido" })
+  type!: PrizeType;
 
   @IsString()
   @MinLength(1, { message: "Categoria é obrigatória" })

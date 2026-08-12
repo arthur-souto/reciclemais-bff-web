@@ -2,14 +2,30 @@ import { User } from "../../../domain/models/user";
 import UserRepositoryPort from "../../../domain/ports/repository/UserRepositoryPort";
 import { db, DbClient } from "../../../infrastructure/database/client";
 import { usersTable, UserRow } from "../../../infrastructure/database/schema/user.schema";
-import { eq } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import AppError from "../../../domain/errors/AppError";
 import { isForeignKeyViolation } from "./DrizzleErrors";
 
 export default class DrizzleUserRepository implements UserRepositoryPort {
+    
+    async decrementScoreIfEnough(user: User, score: number, tx?: unknown): Promise<boolean> {
+        const executor = (tx as DbClient) ?? db;
 
-    private readonly MAX_DIFF_HASH = 10;
+        const [row] = await executor.update(usersTable)
+        .set({
+            total_score: sql`${usersTable.total_score} - ${score}`
+        })
+        .where(
+            and(
+                eq(usersTable.id, user.getId()!),
+                gte(usersTable.total_score, score)
+            )
+        )
+        .returning();
 
+        return !!row;
+    }
+    
     async save(user: User): Promise<User> {
 
         const [row] = await db.insert(usersTable).values({

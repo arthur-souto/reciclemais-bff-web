@@ -3,13 +3,21 @@ export enum PrizeStatus {
     INACTIVE = "INACTIVE",
 }
 
+export enum PrizeType {
+    PHYSICAL = "PHYSICAL",
+    DIGITAL = "DIGITAL",
+    DISCOUNT = "DISCOUNT",
+}
+
 export class Prize {
     id: null | number = null;
     name: string;
     required_points: number;
+    quantity: number | null;
     image_url: string | null;
     description: string;
     status: PrizeStatus;
+    type: PrizeType;
     category: string | null;
     expiration_date: Date | null;
     created_at: Date;
@@ -20,9 +28,11 @@ export class Prize {
         id: null | number = null,
         name: string,
         required_points: number,
+        quantity: number | null,
         image_url: string | null,
         description: string,
         status: PrizeStatus,
+        type: PrizeType,
         category: string | null,
         expiration_date: Date | null,
         created_at: Date,
@@ -32,9 +42,11 @@ export class Prize {
         this.id = id;
         this.name = name;
         this.required_points = required_points;
+        this.quantity = quantity;
         this.image_url = image_url;
         this.description = description;
         this.status = status;
+        this.type = type;
         this.category = category;
         this.expiration_date = expiration_date;
         this.created_at = created_at;
@@ -66,6 +78,14 @@ export class Prize {
         this.required_points = required_points;
     }
 
+    getQuantity(): number | null {
+        return this.quantity;
+    }
+
+    setQuantity(quantity: number | null): void {
+        this.quantity = quantity;
+    }
+
     getImage_url(): string | null {
         return this.image_url;
     }
@@ -88,6 +108,14 @@ export class Prize {
 
     setStatus(status: PrizeStatus): void {
         this.status = status;
+    }
+
+    getType(): PrizeType {
+        return this.type;
+    }
+
+    setType(type: PrizeType): void {
+        this.type = type;
     }
 
     getCategory(): string | null {

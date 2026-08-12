@@ -1,0 +1,1 @@
+ALTER TABLE "prize_redemptions" ADD CONSTRAINT "uq_user_prize" UNIQUE("fk_user","fk_prize");

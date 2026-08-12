@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import Logger from "../../../../../domain/ports/LoggerPort";
+import Logger from "../../domain/ports/LoggerPort";
 
 
 export function createFakeLogger():Logger {

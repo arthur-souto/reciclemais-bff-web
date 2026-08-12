@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { Response, Request } from "express";
-import AuthController from "../../controller/AuthController";
+import AuthController from "../../adapters/in/http/controller/AuthController";
 import { createFakeLogger } from "../helpers/fakeLogger";
-import AppError from "../../../../../domain/errors/AppError";
+import AppError from "../../domain/errors/AppError";
 
 
 function buildRes() {

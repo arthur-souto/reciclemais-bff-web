@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
-import { evidenceRoutes } from "../../route/evidence.routes";
-import EvidenceController from "../../controller/EvidenceController";
+import { evidenceRoutes } from "../../adapters/in/http/route/evidence.routes";
+import EvidenceController from "../../adapters/in/http/controller/EvidenceController";
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
 import { createFakeTokenService, VALID_TOKEN } from "../helpers/fakeTokenService";

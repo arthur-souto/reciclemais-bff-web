@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { TokenPayload, TokenServicePort } from "../../../../../domain/TokenServicePort";
+import { TokenPayload, TokenServicePort } from "../../domain/TokenServicePort";
 
 export const VALID_TOKEN = "valid-token";
 

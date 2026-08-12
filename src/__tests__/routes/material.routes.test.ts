@@ -1,13 +1,13 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
-import { materialRoutes } from "../../route/material.routes";
-import MaterialController from "../../controller/MaterialController";
-import AppError from "../../../../../domain/errors/AppError";
+import { materialRoutes } from "../../adapters/in/http/route/material.routes";
+import MaterialController from "../../adapters/in/http/controller/MaterialController";
+import AppError from "../../domain/errors/AppError";
 
 import { buildTestApp } from "../helpers/testApp";
 import { createFakeLogger } from "../helpers/fakeLogger";
 import { createFakeTokenService, VALID_TOKEN, DEFAULT_PAYLOAD } from "../helpers/fakeTokenService";
-import { EImportance } from "../../../../../domain/models/material";
+import { EImportance } from "../../domain/models/material";
 
 const authHeader = { Authorization: `Bearer ${VALID_TOKEN}` };
 

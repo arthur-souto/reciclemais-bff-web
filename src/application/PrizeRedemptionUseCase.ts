@@ -1,4 +1,4 @@
-import { PrizeStatus } from "../domain/models/prize";
+import { PrizeStatus, PrizeType } from "../domain/models/prize";
 import { PrizeRedemption } from "../domain/models/prizeRedemption";
 import PrizeRepositoryPort from "../domain/ports/repository/PrizeRepositoryPort";
 import UserRepositoryPort from "../domain/ports/repository/UserRepositoryPort";
@@ -15,11 +15,13 @@ export default class PrizeRedemptionUseCase {
         private readonly userRepository: UserRepositoryPort,
         private readonly prizeRedemptionRepository: PrizeRedemptionRepositoryPort,
         private readonly transactionManager: TransactionManagerPort
-    ) {}
+    ) { }
 
     public async redeem(prizeId: string, userId: string) {
+        
         const numericId = this.parseId(prizeId);
         const prize = await this.prizeRepository.findById(numericId);
+
         if (!prize) {
             throw new AppError("Prêmio não encontrado", 404);
         }
@@ -42,13 +44,33 @@ export default class PrizeRedemptionUseCase {
             throw new AppError("Pontos insuficientes para resgatar este prêmio", 400);
         }
 
-        if(await this.prizeRedemptionRepository.existsByUserAndPrize(userId, numericId)) {
+        if (await this.prizeRedemptionRepository.existsByUserAndPrize(userId, numericId)) {
             throw new AppError("Prêmio já resgatado por este usuário", 400);
         }
 
         const redemption = await this.transactionManager.run(async (tx) => {
-            await this.userRepository.incrementScore(user, -prize.getRequired_points(), tx);
-            return this.prizeRedemptionRepository.create(new PrizeRedemption(null, numericId, userId), tx);
+
+            if (prize.getType() === PrizeType.PHYSICAL) {
+                const decrementedPrize = await this.prizeRepository.decrementQuantity(numericId, tx);
+                if (!decrementedPrize) {
+                    throw new AppError("Prêmio esgotado", 400);
+                }
+            }
+
+            const decrementedUser = await this.userRepository.decrementScoreIfEnough(
+                user,
+                prize.getRequired_points(),
+                tx
+            );
+
+            if (!decrementedUser) {
+                throw new AppError("Pontos insuficientes para resgatar este prêmio", 400);
+            }
+
+            return this.prizeRedemptionRepository.create(
+                new PrizeRedemption(null, numericId, userId),
+                tx
+            );
         });
 
         return toPrizeRedemptionResponse(redemption);

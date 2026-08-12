@@ -7,15 +7,15 @@ import { PaginatedResult, PaginationParams } from "../../../domain/dto/Paginatio
 
 export default class DrizzlePrizeRedemptionRepository implements PrizeRedemptionRepositoryPort {
     async existsByUserAndPrize(fk_user: string, fk_prize: number): Promise<boolean> {
-        
-        const result = await db.select({ id: prizeRedemptionTable.id}).from(prizeRedemptionTable)
-        .where(
-            and(
-                eq(prizeRedemptionTable.fk_user, fk_user),
-                eq(prizeRedemptionTable.fk_prize, fk_prize)
+
+        const result = await db.select({ id: prizeRedemptionTable.id }).from(prizeRedemptionTable)
+            .where(
+                and(
+                    eq(prizeRedemptionTable.fk_user, fk_user),
+                    eq(prizeRedemptionTable.fk_prize, fk_prize)
+                )
             )
-        )
-        .limit(1);
+            .limit(1);
 
         return result.length > 0;
     }
@@ -23,13 +23,22 @@ export default class DrizzlePrizeRedemptionRepository implements PrizeRedemption
     async create(redemption: PrizeRedemption, tx?: unknown): Promise<PrizeRedemption> {
         const executor = (tx as DbClient) ?? db;
 
-        const [row] = await executor.insert(prizeRedemptionTable).values({
-            fk_prize: redemption.getFk_prize(),
-            fk_user: redemption.getFk_user(),
-            redeemed_at: redemption.getRedeemed_at(),
-        }).returning();
+        try {
+            const [row] = await executor.insert(prizeRedemptionTable).values({
+                fk_prize: redemption.getFk_prize(),
+                fk_user: redemption.getFk_user(),
+                redeemed_at: redemption.getRedeemed_at(),
+            }).returning();
 
-        return this.toDomain(row as PrizeRedemptionRow);
+            return this.toDomain(row as PrizeRedemptionRow);
+        }
+        catch (error: any) {
+            if (error.code === '23503') {
+                throw new Error("Foreign key violation: " + error.detail);
+            }
+            throw error;
+        }
+
     }
 
     async findByUser(fk_user: string, pagination: PaginationParams): Promise<PaginatedResult<PrizeRedemption>> {
