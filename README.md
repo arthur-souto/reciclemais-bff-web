@@ -1,10 +1,10 @@
 # reciclemais-bff-web
 
-Este repositório representa a nova base do backend/BFF do projeto recicleMais. A ideia inicial é reescrever a implementação original do CRUD presente no repositório principal com uma estrutura mais robusta e com funcionalidades adicionais.
+Este repositório é a nova base do backend/BFF do projeto recicleMais: reescreve o CRUD original do repositório principal com uma estrutura mais robusta (Arquitetura Hexagonal / Ports & Adapters) e funcionalidades adicionais.
 
-## Proposta inicial
+## Proposta
 
-O projeto tem como objetivo evoluir a solução inicial do recicleMais, mantendo o foco em facilitar o fluxo de cadastro, consulta e manipulação de dados, mas com uma arquitetura mais organizada para expansão futura.
+O backend cobre hoje o fluxo completo de cadastro e autenticação de usuários, cadastro de materiais recicláveis, registro de entregas ("deliveries"), validação de evidências de reciclagem por IA (Groq) com pontuação automática, e um catálogo de prêmios resgatáveis por pontos — com controle de concorrência para evitar resgates duplicados ou estoque negativo. Veja o detalhamento completo em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Como iniciar o projeto
 
@@ -21,18 +21,25 @@ Copie o arquivo de exemplo e ajuste os valores conforme necessário:
 cp .env.example .env
 ```
 
-| Variável            | Descrição                                                              | Exemplo/Padrão                                            |
-| ------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| `PORT`              | Porta em que a aplicação HTTP sobe                                     | `3000`                                                      |
-| `GROQ_API_KEY`      | Chave de API da Groq, usada na análise de evidências por IA             | *(obrigatória, obtenha em https://console.groq.com)*        |
-| `GROQ_MODEL`        | Modelo Groq usado para texto                                            | `qwen/qwen3.6-27b`                                          |
-| `GROQ_VISION_MODEL` | Modelo Groq usado para análise de imagens                               | `qwen/qwen3.6-27b`                                          |
-| `POSTGRES_DB`       | Nome do banco criado pelo container do Postgres                        | `recicle_db`                                                |
-| `POSTGRES_USER`     | Usuário do Postgres                                                     | `dev`                                                       |
-| `POSTGRES_PASSWORD` | Senha do Postgres                                                       | `dev`                                                       |
-| `DATABASE_URL`      | String de conexão usada pela aplicação e pelo drizzle-kit               | `postgresql://dev:dev@localhost:5432/recicle_db`            |
+| Variável               | Descrição                                                                 | Exemplo/Padrão                                            |
+| ---------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `PORT`                 | Porta em que a aplicação HTTP sobe                                        | `3000`                                                      |
+| `GROQ_API_KEY`         | Chave de API da Groq, usada na análise de evidências por IA               | *(obrigatória, obtenha em https://console.groq.com)*        |
+| `GROQ_MODEL`           | Modelo Groq usado para texto                                               | `qwen/qwen3.6-27b`                                          |
+| `GROQ_VISION_MODEL`    | Modelo Groq usado para análise de imagens                                 | `qwen/qwen3.6-27b`                                          |
+| `POSTGRES_DB`          | Nome do banco criado pelo container do Postgres                           | `recicle_db`                                                |
+| `POSTGRES_USER`        | Usuário do Postgres                                                       | `dev`                                                       |
+| `POSTGRES_PASSWORD`    | Senha do Postgres                                                         | `dev`                                                       |
+| `DATABASE_URL`         | String de conexão usada pela aplicação e pelo drizzle-kit                 | `postgresql://dev:dev@localhost:5432/recicle_db`            |
+| `JWT_SECRET`           | Segredo usado para assinar/validar os tokens JWT de autenticação          | *(obrigatória, use um valor forte e único por ambiente)*    |
+| `JWT_EXPIRES_IN`       | Tempo de expiração do token JWT                                           | `1d`                                                         |
+| `R2_ENDPOINT`          | Endpoint S3-compatível do bucket Cloudflare R2 usado para upload de imagens | *(obrigatória, obtenha no painel da Cloudflare)*           |
+| `R2_ACCESS_KEY_ID`     | Access key do bucket R2                                                   | *(obrigatória)*                                              |
+| `R2_SECRET_ACCESS_KEY` | Secret key do bucket R2                                                   | *(obrigatória)*                                              |
+| `R2_BUCKET_NAME`       | Nome do bucket R2                                                         | *(obrigatória)*                                              |
+| `R2_PUBLIC_URL`        | URL pública usada para montar o link das imagens enviadas                 | *(obrigatória)*                                              |
 
-> `GROQ_API_KEY` é sua chave pessoal — nunca faça commit dela. O arquivo `.env` já está no `.gitignore`.
+> `GROQ_API_KEY`, `JWT_SECRET` e as credenciais `R2_*` são segredos — nunca faça commit deles. O arquivo `.env` já está no `.gitignore`.
 
 ### Subindo o banco de dados com Docker
 
@@ -85,9 +92,19 @@ Lá dá pra ver todos os endpoints, seus parâmetros/body esperados e testar cha
 3. Clique no botão **Authorize** (canto superior direito da página) e cole o token — sem o prefixo `Bearer`, o Swagger adiciona isso automaticamente.
 4. A partir daí, toda chamada feita pela UI para rotas protegidas já vai com o header `Authorization` preenchido.
 
+### Rodando os testes
+
+```bash
+npm test              # roda a suíte uma vez (Vitest)
+npm run test:watch    # modo watch
+npm run test:coverage # com relatório de cobertura
+```
+
+Os testes ficam em `src/__tests__/` e cobrem controllers e rotas (Vitest + Supertest), com fakes para logger e serviço de token — não dependem do Postgres/R2/Groq reais.
+
 ## Documentação
 
-📐 [Arquitetura do projeto](docs/ARQUITETURA.md)
+📐 [Arquitetura do projeto](docs/ARQUITETURA.md) — domínio, casos de uso, fluxo de análise de evidência por IA, controle de concorrência no resgate de prêmios e stack completa.
 
 ### Feature 1: Inteligência de Valor para o Novo Backend
 
