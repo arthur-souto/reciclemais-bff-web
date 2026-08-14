@@ -40,7 +40,12 @@ import ScoreService from "./application/service/ScoreService";
 
 const logger: Logger = new PinoLogger();
 const passwordHasher = new Argon2PasswordHasher();
-const tokenService = new JwtTokenService(process.env.JWT_SECRET!, process.env.JWT_EXPIRES_IN);
+
+const privateKey = process.env.JWT_PRIVATE_KEY!.replace(/\\n/g, '\n');
+const publicKey = process.env.JWT_PUBLIC_KEY!.replace(/\\n/g, '\n');
+
+
+const tokenService = new JwtTokenService(publicKey, privateKey, process.env.JWT_EXPIRES_IN);
 
 //groq service adapter
 const groqService = new GroqServiceAdpater(

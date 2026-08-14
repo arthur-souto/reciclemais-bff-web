@@ -150,7 +150,7 @@ Schemas em `src/infrastructure/database/schema/*.ts`, um arquivo por tabela: `us
 ## Autenticação e autorização
 
 - Senhas com **Argon2** (`Argon2PasswordHasher`, lib `argon2` — `bcrypt` está nas dependências mas não é usado nos adapters atuais).
-- Tokens **JWT** (`JwtTokenService`, lib `jsonwebtoken`), assinados com `JWT_SECRET` e `JWT_EXPIRES_IN`; payload inclui `role`, usado por `requireRole` para autorização por papel (`USER`, `ADMIN`, `ASSOCIATE`).
+- Tokens **JWT** (`JwtTokenService`, lib `jsonwebtoken`), assinados com RS256 via par de chaves assimétricas (`JWT_PRIVATE_KEY` assina, `JWT_PUBLIC_KEY` valida) e `JWT_EXPIRES_IN`; payload inclui `role`, usado por `requireRole` para autorização por papel (`USER`, `ADMIN`, `ASSOCIATE`). Veja no [README](../README.md#gerando-o-par-de-chaves-do-jwt) como gerar o par de chaves.
 
 ## Documentação da API
 

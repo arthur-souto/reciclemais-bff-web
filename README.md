@@ -31,7 +31,8 @@ cp .env.example .env
 | `POSTGRES_USER`        | Usuário do Postgres                                                       | `dev`                                                       |
 | `POSTGRES_PASSWORD`    | Senha do Postgres                                                         | `dev`                                                       |
 | `DATABASE_URL`         | String de conexão usada pela aplicação e pelo drizzle-kit                 | `postgresql://dev:dev@localhost:5432/recicle_db`            |
-| `JWT_SECRET`           | Segredo usado para assinar/validar os tokens JWT de autenticação          | *(obrigatória, use um valor forte e único por ambiente)*    |
+| `JWT_PRIVATE_KEY`      | Chave privada RSA (PEM) usada para assinar os tokens JWT (RS256)          | *(obrigatória, veja como gerar abaixo)*                     |
+| `JWT_PUBLIC_KEY`       | Chave pública RSA (PEM) usada para validar os tokens JWT (RS256)          | *(obrigatória, veja como gerar abaixo)*                     |
 | `JWT_EXPIRES_IN`       | Tempo de expiração do token JWT                                           | `1d`                                                         |
 | `R2_ENDPOINT`          | Endpoint S3-compatível do bucket Cloudflare R2 usado para upload de imagens | *(obrigatória, obtenha no painel da Cloudflare)*           |
 | `R2_ACCESS_KEY_ID`     | Access key do bucket R2                                                   | *(obrigatória)*                                              |
@@ -39,7 +40,33 @@ cp .env.example .env
 | `R2_BUCKET_NAME`       | Nome do bucket R2                                                         | *(obrigatória)*                                              |
 | `R2_PUBLIC_URL`        | URL pública usada para montar o link das imagens enviadas                 | *(obrigatória)*                                              |
 
-> `GROQ_API_KEY`, `JWT_SECRET` e as credenciais `R2_*` são segredos — nunca faça commit deles. O arquivo `.env` já está no `.gitignore`.
+> `GROQ_API_KEY`, `JWT_PRIVATE_KEY`/`JWT_PUBLIC_KEY` e as credenciais `R2_*` são segredos — nunca faça commit deles. O arquivo `.env` já está no `.gitignore`.
+
+#### Gerando o par de chaves do JWT
+
+A autenticação usa JWT assinado com RS256 (chave privada assina, chave pública valida). Gere o par com OpenSSL:
+
+```bash
+mkdir -p keys
+openssl genrsa -out keys/private.pem 2048
+openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+```
+
+A pasta `keys/` já está no `.gitignore` — as chaves nunca devem ser commitadas. Depois, copie o conteúdo de cada arquivo `.pem` para as variáveis no `.env`, substituindo as quebras de linha por `\n` (o código faz o `unescape` automaticamente em `src/index.ts`):
+
+```bash
+JWT_PRIVATE_KEY=$(awk '{printf "%s\\n", $0}' keys/private.pem)
+JWT_PUBLIC_KEY=$(awk '{printf "%s\\n", $0}' keys/public.pem)
+```
+
+Ou, manualmente, cole o conteúdo do `.pem` entre aspas no `.env`, uma linha só, com `\n` no lugar das quebras de linha reais:
+
+```
+JWT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQ...\n-----END PRIVATE KEY-----\n"
+JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIIBIj...\n-----END PUBLIC KEY-----\n"
+```
+
+Use um par de chaves diferente por ambiente (dev, staging, produção).
 
 ### Subindo o banco de dados com Docker
 
