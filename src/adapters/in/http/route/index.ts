@@ -13,7 +13,9 @@ import { materialRoutes } from "./material.routes";
 import { prizeRoutes } from "./prize.routes";
 import { deliveryRoutes } from "./delivery.routes";
 import { uploadRoutes } from "./upload.routes";
+import { jwksRoutes } from "./jwks";
 import { TokenServicePort } from "../../../../domain/TokenServicePort";
+import { JwkProviderPort } from "../../../../domain/ports/JwkProviderPort";
 
 interface Controllers {
   evidenceController: EvidenceController;
@@ -25,7 +27,12 @@ interface Controllers {
   uploadController: UploadController;
 }
 
-export function registerRoutes(app: Application, controllers: Controllers, tokens: TokenServicePort) {
+export function registerRoutes(
+  app: Application,
+  controllers: Controllers,
+  tokens: TokenServicePort,
+  jwkProvider: JwkProviderPort,
+) {
   app.use(evidenceRoutes(controllers.evidenceController, tokens));
   app.use(userRoutes(controllers.userController, tokens));
   app.use(authRoutes(controllers.authController));
@@ -33,4 +40,5 @@ export function registerRoutes(app: Application, controllers: Controllers, token
   app.use(prizeRoutes(controllers.prizeController, tokens));
   app.use(deliveryRoutes(controllers.deliveryController, tokens));
   app.use(uploadRoutes(controllers.uploadController, tokens));
+  app.use(jwksRoutes(jwkProvider));
 }

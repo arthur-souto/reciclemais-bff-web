@@ -8,7 +8,8 @@ export default class JwtTokenService implements TokenServicePort {
     public constructor(
         private readonly publicKey: string,
         private readonly privateKey: string,
-        private readonly expiresIn: string = "1d"
+        private readonly expiresIn: string = "1d",
+        private readonly keyId: string = "social-app-key-1"
     ) {
         if (!privateKey) {
             throw new Error("JWT_PRIVATE_KEY não configurado");
@@ -24,7 +25,8 @@ export default class JwtTokenService implements TokenServicePort {
             this.privateKey,
             {
                 algorithm: this.ALGORITHM,
-                expiresIn: this.expiresIn as NonNullable<jwt.SignOptions["expiresIn"]>
+                expiresIn: this.expiresIn as NonNullable<jwt.SignOptions["expiresIn"]>,
+                keyid: this.keyId
             }
 
         );

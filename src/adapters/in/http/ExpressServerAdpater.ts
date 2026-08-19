@@ -17,6 +17,7 @@ import DeliveryController from "./controller/DeliveryController";
 import UploadController from "./controller/UploadController";
 import { errorHandler } from "./middleware/errorHandler";
 import { TokenServicePort } from "../../../domain/TokenServicePort";
+import { JwkProviderPort } from "../../../domain/ports/JwkProviderPort";
 
 export default class ExpressServerAdapter implements ApplicationRunnable {
 
@@ -34,7 +35,8 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
         private prizeController: PrizeController,
         private deliveryController: DeliveryController,
         private uploadController: UploadController,
-        private tokens: TokenServicePort
+        private tokens: TokenServicePort,
+        private jwkProvider: JwkProviderPort
     ) {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
@@ -56,7 +58,8 @@ export default class ExpressServerAdapter implements ApplicationRunnable {
                 deliveryController: this.deliveryController,
                 uploadController: this.uploadController
             },
-            this.tokens
+            this.tokens,
+            this.jwkProvider
         )
     }
 

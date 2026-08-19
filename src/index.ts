@@ -17,6 +17,7 @@ import Argon2PasswordHasher from "./adapters/out/security/Argon2PasswordHasher";
 import AuthUseCases from "./application/AuthUseCases";
 import AuthController from "./adapters/in/http/controller/AuthController";
 import JwtTokenService from "./adapters/out/security/JwtTokenService";
+import JoseJwkProvider from "./adapters/out/security/JoseJwkProvider";
 import MaterialUseCase from "./application/MaterialUseCase";
 import DrizzleMaterialRepository from "./adapters/out/repositories/DrizzleMaterialRepository";
 import MaterialRepositoryPort from "./domain/ports/repository/MaterialRepositoryPort";
@@ -43,9 +44,12 @@ const passwordHasher = new Argon2PasswordHasher();
 
 const privateKey = process.env.JWT_PRIVATE_KEY!.replace(/\\n/g, '\n');
 const publicKey = process.env.JWT_PUBLIC_KEY!.replace(/\\n/g, '\n');
+const jwtKeyId = process.env.JWT_KEY_ID || "social-app-key-1";
 
+const tokenService = new JwtTokenService(publicKey, privateKey, process.env.JWT_EXPIRES_IN, jwtKeyId);
 
-const tokenService = new JwtTokenService(publicKey, privateKey, process.env.JWT_EXPIRES_IN);
+// jwk provider (expõe a chave pública em /.well-known/jwks.json para validação externa dos tokens)
+const jwkProvider = new JoseJwkProvider(publicKey, jwtKeyId);
 
 //groq service adapter
 const groqService = new GroqServiceAdpater(
@@ -100,7 +104,8 @@ const app: ApplicationRunnable = new ExpressServerAdapter(
     prizeController,
     deliveryController,
     uploadController,
-    tokenService
+    tokenService,
+    jwkProvider
 );
 
 app.run(Number(process.env.PORT)).then(() => {

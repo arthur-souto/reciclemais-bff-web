@@ -9,4 +9,5 @@ export interface TokenPayload {
 export interface TokenServicePort {
     sign: (payload: TokenPayload) => string;
     verify: (token: string) => TokenPayload | null; 
+    
 }
