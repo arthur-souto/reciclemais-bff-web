@@ -49,6 +49,8 @@ docker compose -f docker-compose.prod.yml ps
 tailscale status
 ```
 
+A aplicação também é exposta publicamente (fora da tailnet) via Tailscale Funnel, para o frontend hospedado na Vercel conseguir acessá-la — ver [FUNNEL.md](./FUNNEL.md) para o setup e checklist de troubleshooting pós-reboot.
+
 ## Fluxo de atualização (deploy de uma mudança)
 
 O desenvolvimento continua normal em outra máquina. Para levar uma alteração até o servidor:
