@@ -19,6 +19,7 @@ describe("UserController", () => {
   beforeEach(() => {
     userUseCase = {
       createUser: vi.fn(),
+      findAll: vi.fn(),
       findById: vi.fn(),
       findByEmail: vi.fn(),
       update: vi.fn(),
@@ -96,7 +97,7 @@ describe("UserController", () => {
 
   it("update: deve retornar 200 com os dados atualizados", async () => {
     userUseCase.update.mockResolvedValue({ id: "1", name: "Atualizado" });
-    const req = { params: { id: "1" }, body: { name: "Atualizado" } } as unknown as Request;
+    const req = { user: { sub: "1" }, body: { name: "Atualizado" } } as unknown as Request;
     const res = buildRes();
     const next = vi.fn();
 
@@ -112,7 +113,7 @@ describe("UserController", () => {
 
   it("delete: deve retornar 200 com mensagem de sucesso", async () => {
     userUseCase.delete.mockResolvedValue(undefined);
-    const req = { params: { id: "1" } } as unknown as Request;
+    const req = { user: { sub: "1" } } as unknown as Request;
     const res = buildRes();
     const next = vi.fn();
 
@@ -121,5 +122,27 @@ describe("UserController", () => {
     expect(userUseCase.delete).toHaveBeenCalledWith("1");
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ description: "Usuario removido com sucesso" });
+  });
+
+  it("findAll: deve retornar 200 com a lista paginada de usuários", async () => {
+    userUseCase.findAll.mockResolvedValue({
+      data: [{ id: "1" }, { id: "2" }],
+      total: 2,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+    const req = { query: {} } as unknown as Request;
+    const res = buildRes();
+    const next = vi.fn();
+
+    await controller.findAll(req, res, next);
+
+    expect(userUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      payload: [{ id: "1" }, { id: "2" }],
+      meta: { total: 2, page: 1, limit: 10, totalPages: 1 },
+    });
   });
 });

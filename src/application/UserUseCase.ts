@@ -4,6 +4,7 @@ import UserRepositoryPort from "../domain/ports/repository/UserRepositoryPort";
 import AppError from "../domain/errors/AppError";
 import { PasswordHasherPort } from "../domain/ports/PasswordHasherPort";
 import { UpdateUserDto } from "../adapters/request/UpdateUserDTO";
+import { PaginatedResult, PaginationParams } from "../domain/dto/Pagination";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,6 +17,11 @@ export default class UserUseCase {
         user.setPassword(hash)
         
         return toUserResponse(await this.repository.save(user));
+    }
+
+    public async findAll(pagination: PaginationParams) {
+        const result = await this.repository.findAll(pagination);
+        return result;
     }
 
     public async findById(id: string) {

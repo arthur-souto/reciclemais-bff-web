@@ -149,7 +149,7 @@ export function deliveryRoutes(deliveryController: DeliveryController, tokens: T
   router.get(
     "/deliveries",
     authMiddleware(tokens),
-    deliveryController.findAll,
+    deliveryController.findMyDeliveries,
   );
 
   /**

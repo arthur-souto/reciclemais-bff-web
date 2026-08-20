@@ -32,6 +32,11 @@ export default class DeliveryUseCase {
         return mapPaginatedResult(result, toDeliveryResponse);
     }
 
+    public async findAllByUserId(userId: string, pagination: PaginationParams) {
+        const result = await this.repository.findAllByUserId(userId, pagination);
+        return mapPaginatedResult(result, toDeliveryResponse);
+    }
+
     public async update(id: string, dto: UpdateDeliveryDto) {
         const delivery = await this.repository.findById(this.parseId(id));
         

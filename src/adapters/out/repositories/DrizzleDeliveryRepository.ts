@@ -9,7 +9,6 @@ import { toMaterialDomain } from "../mapper/MaterialMapper";
 
 export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort {
 
-    
     async findByIdIncludeDelivery(id: number): Promise<Delivery | null> {
         const [row] = await db.select(
             {
@@ -71,8 +70,37 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
                 .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
                 .limit(limit).offset((page - 1) * limit)
                 .orderBy(desc(deliveryTable.created_at)),
-                
+
             db.select({ total: count() }).from(deliveryTable)
+        ]);
+
+        const total = totalRow?.total ?? 0;
+
+        return {
+            data: rows.map((row) => this.toDomain(row.delivery, row.material ?? undefined)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
+    async findAllByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Delivery>> {
+        const { page, limit } = pagination;
+
+        const [rows, [totalRow]] = await Promise.all([
+            db.select(
+                {
+                    delivery: deliveryTable,
+                    material: materialTable
+                }
+            ).from(deliveryTable)
+                .where(eq(deliveryTable.fk_user, userId))
+                .leftJoin(materialTable, eq(deliveryTable.fk_material, materialTable.id))
+                .limit(limit).offset((page - 1) * limit)
+                .orderBy(desc(deliveryTable.created_at)),
+
+            db.select({ total: count() }).from(deliveryTable).where(eq(deliveryTable.fk_user, userId))
         ]);
         const total = totalRow?.total ?? 0;
 
@@ -84,6 +112,7 @@ export default class DrizzleDeliveryRepository implements DeliveryRepositoryPort
             totalPages: Math.ceil(total / limit),
         };
     }
+
 
     async update(delivery: Delivery, tx?: unknown): Promise<Delivery> {
         const executor = (tx as DbClient) ?? db;

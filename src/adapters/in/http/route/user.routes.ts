@@ -4,6 +4,7 @@ import { CreateUserDto } from "../../../request/CreateUserDTO";
 import { UpdateUserDto } from "../../../request/UpdateUserDTO";
 import UserController from "../controller/UserController";
 import { authMiddleware } from "../middleware/auth";
+import { requireRole } from "../middleware/requireRole";
 import { TokenServicePort } from "../../../../domain/TokenServicePort";
 
 export function userRoutes(userController: UserController, tokens: TokenServicePort): Router {
@@ -75,6 +76,43 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
 
   /**
    * @openapi
+   * /users:
+   *   get:
+   *     summary: Lista todos os usuários (somente admin)
+   *     tags:
+   *       - Users
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Página desejada
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Itens por página (máximo 100)
+   *     responses:
+   *       200:
+   *         description: Lista paginada de usuários
+   *       401:
+   *         description: Não autenticado
+   *       403:
+   *         description: Acesso negado
+   */
+  router.get(
+    "/users",
+    authMiddleware(tokens),
+    requireRole(["ADMIN"]),
+    userController.findAll
+  )
+
+  /**
+   * @openapi
    * /users/{id}:
    *   get:
    *     summary: Busca um usuário pelo ID
@@ -136,20 +174,14 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
 
   /**
    * @openapi
-   * /users/{id}:
+   * /users:
    *   patch:
-   *     summary: Atualiza um usuário existente
+   *     summary: Atualiza o usuário autenticado
+   *     description: O usuário atualizado é sempre o que está autenticado na requisição (via token).
    *     tags:
    *       - Users
    *     security:
    *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: string
-   *         description: ID do usuário
    *     requestBody:
    *       required: true
    *       content:
@@ -185,18 +217,12 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
    *       404:
    *         description: Usuario não encontrado
    *   delete:
-   *     summary: Remove um usuário
+   *     summary: Remove o usuário autenticado
+   *     description: O usuário removido é sempre o que está autenticado na requisição (via token).
    *     tags:
    *       - Users
    *     security:
    *       - bearerAuth: []
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         required: true
-   *         schema:
-   *           type: string
-   *         description: ID do usuário
    *     responses:
    *       200:
    *         description: Usuario removido com sucesso
@@ -206,14 +232,14 @@ export function userRoutes(userController: UserController, tokens: TokenServiceP
    *         description: Usuario não encontrado
    */
   router.patch(
-    "/users/:id",
+    "/users",
     authMiddleware(tokens),
     validate(UpdateUserDto),
     userController.update
   )
 
   router.delete(
-    "/users/:id",
+    "/users",
     authMiddleware(tokens),
     userController.delete
   )

@@ -31,7 +31,7 @@ describe("delivery.routes", () => {
         deliveryUseCase = {
             create: vi.fn(),
             findById: vi.fn(),
-            findAll: vi.fn(),
+            findAllByUserId: vi.fn(),
             update: vi.fn(),
             delete: vi.fn(),
         };
@@ -133,7 +133,7 @@ describe("delivery.routes", () => {
         });
 
         it("deve retornar 200 com a lista paginada de entregas quando autenticado", async () => {
-            deliveryUseCase.findAll.mockResolvedValue({
+            deliveryUseCase.findAllByUserId.mockResolvedValue({
                 data: [{ id: 1, local: "Ecoponto Centro" }],
                 total: 1,
                 page: 1,
@@ -146,7 +146,7 @@ describe("delivery.routes", () => {
             expect(response.status).toBe(200);
             expect(response.body.payload).toHaveLength(1);
             expect(response.body.meta).toEqual({ total: 1, page: 1, limit: 10, totalPages: 1 });
-            expect(deliveryUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+            expect(deliveryUseCase.findAllByUserId).toHaveBeenCalledWith(DEFAULT_PAYLOAD.sub, { page: 1, limit: 10 });
         });
     });
 

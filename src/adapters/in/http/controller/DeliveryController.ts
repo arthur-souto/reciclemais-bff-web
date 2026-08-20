@@ -33,9 +33,9 @@ export default class DeliveryController {
         }
     }
 
-    public findAll = async (req: Request, res: Response, next: NextFunction) => {
+    public findMyDeliveries = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.deliveryUseCase.findAll(parsePagination(req));
+            const result = await this.deliveryUseCase.findAllByUserId(req.user!.sub, parsePagination(req));
             res.status(200).json(paginatedPayload(result));
         }
         catch (err) {

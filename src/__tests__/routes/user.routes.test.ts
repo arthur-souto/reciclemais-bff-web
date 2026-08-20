@@ -17,6 +17,7 @@ describe("user.routes", () => {
     beforeEach(() => {
         userUseCase = {
             createUser: vi.fn(),
+            findAll: vi.fn(),
             findById: vi.fn(),
             findByEmail: vi.fn(),
             update: vi.fn(),
@@ -134,6 +135,51 @@ describe("user.routes", () => {
         });
     });
 
+    describe("GET /users", () => {
+        it("deve retornar 401 quando não houver token", async () => {
+            const response = await request(app).get("/users");
+
+            expect(response.status).toBe(401);
+            expect(userUseCase.findAll).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar 403 quando o usuário autenticado não for admin", async () => {
+            const response = await request(app).get("/users").set(authHeader);
+
+            expect(response.status).toBe(403);
+            expect(userUseCase.findAll).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar 200 com a lista paginada de usuários quando admin", async () => {
+            userUseCase.findAll.mockResolvedValue({
+                data: [{ id: VALID_ID, name: "Pedro" }],
+                total: 1,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+            });
+            const adminApp = buildTestApp(
+                userRoutes(
+                    new UserController(userUseCase, createFakeLogger()),
+                    createFakeTokenService({
+                        iss: "reciclemais-bff",
+                        sub: VALID_ID,
+                        email: "admin@example.com",
+                        aud: "reciclemais-web",
+                        role: "ADMIN",
+                    }),
+                ),
+            );
+
+            const response = await request(adminApp).get("/users").set(authHeader);
+
+            expect(response.status).toBe(200);
+            expect(response.body.payload).toHaveLength(1);
+            expect(response.body.meta).toEqual({ total: 1, page: 1, limit: 10, totalPages: 1 });
+            expect(userUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+        });
+    });
+
     describe("GET /users/email/:email", () => {
         it("deve retornar 200 com o usuário encontrado pelo email", async () => {
             userUseCase.findByEmail.mockResolvedValue({ id: VALID_ID, email: "test@gmail.com" });
@@ -145,21 +191,22 @@ describe("user.routes", () => {
         });
     });
 
-    describe("PATCH /users/:id", () => {
+    describe("PATCH /users", () => {
         it("deve atualizar o usuário e retornar 200", async () => {
             userUseCase.update.mockResolvedValue({ id: VALID_ID, name: "Novo Nome" });
 
             const response = await request(app)
-                .patch(`/users/${VALID_ID}`)
+                .patch("/users")
                 .set(authHeader)
                 .send({ name: "Novo Nome" });
 
             expect(response.status).toBe(200);
             expect(response.body.description).toBe("Usuario atualizado com sucesso");
+            expect(userUseCase.update).toHaveBeenCalledWith(VALID_ID, { name: "Novo Nome" });
         });
 
         it("deve retornar 401 quando não autenticado", async () => {
-            const response = await request(app).patch(`/users/${VALID_ID}`).send({ name: "Novo Nome" });
+            const response = await request(app).patch("/users").send({ name: "Novo Nome" });
 
             expect(response.status).toBe(401);
             expect(userUseCase.update).not.toHaveBeenCalled();
@@ -167,7 +214,7 @@ describe("user.routes", () => {
 
         it("deve retornar 400 quando o email informado for inválido", async () => {
             const response = await request(app)
-                .patch(`/users/${VALID_ID}`)
+                .patch("/users")
                 .set(authHeader)
                 .send({ email: "nao-e-email" });
 
@@ -179,7 +226,7 @@ describe("user.routes", () => {
             userUseCase.update.mockResolvedValue({ id: VALID_ID, phone: "11987654321" });
 
             const response = await request(app)
-                .patch(`/users/${VALID_ID}`)
+                .patch("/users")
                 .set(authHeader)
                 .send({
                     profile_image: "https://example.com/avatar.png",
@@ -193,7 +240,7 @@ describe("user.routes", () => {
 
         it("deve retornar 400 quando o CEP informado for inválido", async () => {
             const response = await request(app)
-                .patch(`/users/${VALID_ID}`)
+                .patch("/users")
                 .set(authHeader)
                 .send({ cep: "abc" });
 
@@ -202,18 +249,19 @@ describe("user.routes", () => {
         });
     });
 
-    describe("DELETE /users/:id", () => {
+    describe("DELETE /users", () => {
         it("deve remover o usuário e retornar 200", async () => {
             userUseCase.delete.mockResolvedValue(undefined);
 
-            const response = await request(app).delete(`/users/${VALID_ID}`).set(authHeader);
+            const response = await request(app).delete("/users").set(authHeader);
 
             expect(response.status).toBe(200);
             expect(response.body.description).toBe("Usuario removido com sucesso");
+            expect(userUseCase.delete).toHaveBeenCalledWith(VALID_ID);
         });
 
         it("deve retornar 401 quando não autenticado", async () => {
-            const response = await request(app).delete(`/users/${VALID_ID}`);
+            const response = await request(app).delete("/users");
 
             expect(response.status).toBe(401);
             expect(userUseCase.delete).not.toHaveBeenCalled();

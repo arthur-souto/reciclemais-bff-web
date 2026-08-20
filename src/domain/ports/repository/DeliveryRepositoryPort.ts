@@ -5,6 +5,7 @@ export default interface DeliveryRepositoryPort {
     save(delivery: Delivery): Promise<Delivery>;
     findById(id: number): Promise<Delivery | null>;
     findByIdIncludeDelivery(id: number): Promise<Delivery | null>;
+    findAllByUserId(userId: string, pagination: PaginationParams): Promise<PaginatedResult<Delivery>>
     findAll(pagination: PaginationParams): Promise<PaginatedResult<Delivery>>;
     update(delivery: Delivery, tx?: unknown): Promise<Delivery>;
     delete(id: number): Promise<void>;

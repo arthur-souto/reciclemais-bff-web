@@ -2,30 +2,54 @@ import { User } from "../../../domain/models/user";
 import UserRepositoryPort from "../../../domain/ports/repository/UserRepositoryPort";
 import { db, DbClient } from "../../../infrastructure/database/client";
 import { usersTable, UserRow } from "../../../infrastructure/database/schema/user.schema";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import AppError from "../../../domain/errors/AppError";
 import { isForeignKeyViolation } from "./DrizzleErrors";
+import { PaginatedResult, PaginationParams } from "../../../domain/dto/Pagination";
 
 export default class DrizzleUserRepository implements UserRepositoryPort {
-    
+
+    async findAll(pagination: PaginationParams): Promise<PaginatedResult<User>> {
+        const { limit, page } = pagination;
+
+        const [rows, [totalRow]] = await Promise.all([
+            db.select().from(usersTable)
+                .limit(limit).offset((page - 1) * limit)
+                .orderBy(desc(usersTable.created_at)),
+
+            db.select({ total: count() }).from(usersTable)
+        ])
+
+        const total = totalRow?.total ?? 0
+
+        return {
+            data: rows.map((row) => this.toDomain(row)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    }
+
+
     async decrementScoreIfEnough(user: User, score: number, tx?: unknown): Promise<boolean> {
         const executor = (tx as DbClient) ?? db;
 
         const [row] = await executor.update(usersTable)
-        .set({
-            total_score: sql`${usersTable.total_score} - ${score}`
-        })
-        .where(
-            and(
-                eq(usersTable.id, user.getId()!),
-                gte(usersTable.total_score, score)
+            .set({
+                total_score: sql`${usersTable.total_score} - ${score}`
+            })
+            .where(
+                and(
+                    eq(usersTable.id, user.getId()!),
+                    gte(usersTable.total_score, score)
+                )
             )
-        )
-        .returning();
+            .returning();
 
         return !!row;
     }
-    
+
     async save(user: User): Promise<User> {
 
         const [row] = await db.insert(usersTable).values({
@@ -38,7 +62,7 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
             cep: user.getCep(),
             address: user.getAddress(),
         })
-        .returning();
+            .returning();
 
         return this.toDomain(row as UserRow);
     }
@@ -46,15 +70,15 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
     async findById(id: string): Promise<User | null> {
 
         const [row] = await db.select()
-        .from(usersTable).where(eq(usersTable.id, id));
-        
+            .from(usersTable).where(eq(usersTable.id, id));
+
         return row ? this.toDomain(row) : null;
     }
 
     async findByEmail(email: string): Promise<User | null> {
 
         const [row] = await db.select()
-        .from(usersTable).where(eq(usersTable.email, email));
+            .from(usersTable).where(eq(usersTable.email, email));
 
         return row ? this.toDomain(row) : null;
     }
@@ -63,11 +87,11 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
         const executor = (tx as DbClient) ?? db;
 
         const [row] = await executor.update(usersTable)
-        .set({
-            total_score: user.getTotalScore() + score
-        })
-        .where(eq(usersTable.id, user.getId()!))
-        .returning()
+            .set({
+                total_score: user.getTotalScore() + score
+            })
+            .where(eq(usersTable.id, user.getId()!))
+            .returning()
 
         return row?.total_score!;
     }
@@ -118,5 +142,5 @@ export default class DrizzleUserRepository implements UserRepositoryPort {
             userRow.updated_at ?? new Date()
         );
     }
- 
+
 }

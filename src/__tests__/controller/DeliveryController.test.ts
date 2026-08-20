@@ -22,7 +22,7 @@ describe("DeliveryController", () => {
     deliveryUseCase = {
       create: vi.fn(),
       findById: vi.fn(),
-      findAll: vi.fn(),
+      findAllByUserId: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
     };
@@ -104,22 +104,22 @@ describe("DeliveryController", () => {
     });
   });
 
-  describe("findAll", () => {
+  describe("findMyDeliveries", () => {
     it("deve retornar 200 com a lista paginada de entregas", async () => {
-      deliveryUseCase.findAll.mockResolvedValue({
+      deliveryUseCase.findAllByUserId.mockResolvedValue({
         data: [{ id: 1 }, { id: 2 }],
         total: 2,
         page: 1,
         limit: 10,
         totalPages: 1,
       });
-      const req = { query: {} } as unknown as Request;
+      const req = { query: {}, user: { sub: FK_USER } } as unknown as Request;
       const res = buildRes();
       const next = vi.fn();
 
-      await controller.findAll(req, res, next);
+      await controller.findMyDeliveries(req, res, next);
 
-      expect(deliveryUseCase.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+      expect(deliveryUseCase.findAllByUserId).toHaveBeenCalledWith(FK_USER, { page: 1, limit: 10 });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         payload: [{ id: 1 }, { id: 2 }],

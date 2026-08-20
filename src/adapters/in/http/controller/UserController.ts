@@ -4,6 +4,7 @@ import { CreateUserDto } from "../../../request/CreateUserDTO";
 import { UpdateUserDto } from "../../../request/UpdateUserDTO";
 import { fromUserCreateRequest } from "../../../out/mapper/UserMapper";
 import Logger from "../../../../domain/ports/LoggerPort";
+import { parsePagination, paginatedPayload } from "../utils/pagination";
 
 
 export default class UserController {
@@ -17,6 +18,16 @@ export default class UserController {
 
             const response = await this.userUseCase.createUser(fromUserCreateRequest(dto));
             res.status(201).json({description: "Usuario criado com sucesso", data: response});
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+
+    public findAll = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.userUseCase.findAll(parsePagination(req));
+            res.status(200).json(paginatedPayload(result));
         }
         catch (err) {
             next(err);
@@ -47,9 +58,8 @@ export default class UserController {
 
     public update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {id} = req.params as {id: string};
             const dto = req.body as UpdateUserDto;
-            const response = await this.userUseCase.update(id, dto);
+            const response = await this.userUseCase.update(req.user!.sub, dto);
             res.status(200).json({description: "Usuario atualizado com sucesso", data: response});
         }
         catch (err) {
@@ -59,8 +69,7 @@ export default class UserController {
 
     public delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {id} = req.params as {id: string};
-            await this.userUseCase.delete(id);
+            await this.userUseCase.delete(req.user!.sub);
             res.status(200).json({description: "Usuario removido com sucesso"});
         }
         catch (err) {
