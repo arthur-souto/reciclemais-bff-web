@@ -54,9 +54,9 @@ const jwkProvider = new JoseJwkProvider(publicKey, jwtKeyId);
 //groq service adapter
 const groqService = new GroqServiceAdpater(
     process.env.GROQ_API_KEY!,
-    process.env.GROQ_MODEL || "qwen/qwen3.6-27b",
+    process.env.GROQ_MODEL || "qwen/qwen3.8-27b",
     logger, process.env.GROQ_VISION_MODEL
-|| "qwen/qwen3.6-27b");
+|| "qwen/qwen3.8-27b");
 
 //repositories
 const userRepository: UserRepositoryPort = new DrizzleUserRepository()

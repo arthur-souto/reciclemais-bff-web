@@ -7,7 +7,7 @@ export default class GroqServiceAdpater implements AiCompletionService {
   private model: string;
   private visionModel: string;
 
-  private readonly DEFAULT_VISION_MODEL = "qwen/qwen3.6-27b";
+  private readonly DEFAULT_VISION_MODEL = "qwen/qwen3.8-27b";
   private readonly DEFAULT_TEMPERATURE = 1;
   private readonly DEFAULT_MAX_TOKENS = 1024;
 
